@@ -1,0 +1,52 @@
+LEAP Installation and Startup
+
+Introduction. 
+This is the first-time startup guide for the Land Engagement Adjudication Platform (LEAP). 
+The Land Engagement Adjudication Platform is a web application developed by 
+C1Cs Michaela Kovalsky, Kieran McCauley, Aaron Eakins, Luke Kuklis (Class of 2025) 
+for the United State Air Force Academy's Multi-Domain Laboratory. 
+Development and testing took place in June 2024 at the 
+Air Force Research Laboratory's Gaming Research Integration for Learning Laboratory.
+For more help, please reference the note at the end.
+
+Step 1. Cloning the repository.
+Open a terminal. Navigate to the root folder you want to clone the repository into. 
+Use 'cd <foldername>' to go into a folder and 'cd ..' to go back.
+Run the following line:
+git clone https://github.com/mkov77/LEAP.git
+
+Step 2. Restoring the backend.
+You are going to need to install PostgreSQL. Once it's installed, open PgAdmin4 which
+will be installed during the PostgreSQL process. Create a new database called "LEAP". 
+This can be done by right clicking a database group on the left navigation bar on PgAdmin4.
+Right click your new database and click "Restore...". Where it says "Filename", find
+the LEAP.sql file located in the ./Leap/backend folder. Click restore. The tables and 
+data should load in. 
+
+Step 3. Backend privileges.
+Still on PgAdmin4, right click the LEAP database on the navigation bar.
+Select the 'Grant Wizard' option. 
+For 1, select all the objects. 
+For 2, create a new privilege. The grantee will be 'postgres', Privileges: 'ALL'. 
+For 3, hit 'Finish'.
+If this doesn't work, repeat the Grant Wizard process but set 'PUBLIC' as the grantee.
+
+Step 4. Install Dependencies.
+Go back to your terminal. Make sure you are in the project folder that you cloned. 
+It will be called "LEAP". Run the following line to install all the required dependencies:
+npm install
+If this doesn't work, you probably don’t have npm and you will have to go install it. 
+ChatGPT or google are the best resources if this applies.
+
+Step 5. Adjust the endpoints.
+You will a need an IDE (a code editor) for this. I suggest Visual Studio Code.
+Search-replace every instance of "localhost" with your computer's IP address.
+
+Step 6. Starting the program.
+Go to your file explorer and locate the project folder. At the root of the project folder,
+double click to open STARTUP.bat. This will launch the site and the backend. 
+
+Note from start-up guide author.
+This is based on the set-up process I used to get the application up and running
+on my academy laptop. If there is anything I can do to help, please contact me on teams. 
+- C1C Michaela Kovalsky

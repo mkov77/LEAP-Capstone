@@ -1,0 +1,21 @@
+.progressSection {
+    &:not(:first-of-type) {
+      border-left: rem(3px) solid light-dark(var(--mantine-color-white), var(--mantine-color-dark-7));
+    }
+  }
+
+.details {
+    display:block;
+    overflow: hidden;
+    scrollbar-width: none;
+}
+
+.toggle-details {
+    cursor: pointer;
+    background-color: #e0e0e0;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    scrollbar-width: none;
+    overflow: hidden;
+}
