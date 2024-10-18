@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Modal, Button, TextInput, Loader, Text } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import axios from 'axios';
+import { error } from 'console';
 
 interface SectionCopyProps {
   isOpen: boolean;
@@ -17,34 +18,7 @@ export default function SectionCopyModule({ isOpen, onClose, sectionToCopy, onCo
       newSectionId: '',
     },
   });
-
-  // const handleCopy = async () => {
-  //   const { newSectionId } = form.values;
-
-  //   if (!newSectionId.trim() || !sectionToCopy) return;
-
-  //   setLoading(true);
-
-  //   try {
-  //     // Make an API call to create a new section and copy units
-  //     const response = await axios.post('http://localhost:5000/api/sections/copy', {
-  //       originalSectionId: sectionToCopy,
-  //       newSectionId: newSectionId.trim(),
-  //     });
-
-  //     if (response.status === 200) {
-  //       // Notify the parent component of successful copy
-  //       onCopySuccess?.(newSectionId.trim());
-  //       onClose();
-  //     } else {
-  //       console.error('Error copying section:', response);
-  //     }
-  //   } catch (error) {
-  //     console.error('Error copying section:', error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  const [errorMessage, setErrorMessage] = useState<string | null>(null); // State for error message
 
   // Function to handle copy action
   const handleCopy = async () => {
@@ -52,6 +26,7 @@ export default function SectionCopyModule({ isOpen, onClose, sectionToCopy, onCo
 
     console.log("New scenerio: ", newSectionId);
     console.log("Scenerio to copy: ", sectionToCopy);
+    setErrorMessage(null); // Reset error message
 
     if (!newSectionId) {
       console.log('New scenerio name is required');
@@ -68,21 +43,22 @@ export default function SectionCopyModule({ isOpen, onClose, sectionToCopy, onCo
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            oldSectionId: sectionToCopy,
-            newSectionId: newSectionId,
+          oldSectionId: sectionToCopy,
+          newSectionId: newSectionId,
         })
       });
 
       if (response.ok) {
         console.log(`Scenerio ${sectionToCopy} copied to ${newSectionId} successfully.`);
+        onClose();
       } else {
         const errorData = await response.json();
         console.log(`Error: ${errorData.message}`);
+        setErrorMessage('An error occurred. Session name must be unique.');
       }
     } catch (error) {
       console.log(`Error: ${error}`);
     }
-    onClose();
   };
 
   return (
@@ -93,6 +69,10 @@ export default function SectionCopyModule({ isOpen, onClose, sectionToCopy, onCo
           placeholder="Enter scenerio name"
           {...form.getInputProps('newSectionId')}
         />
+
+{errorMessage && <Text color="red" mt="md">{errorMessage}</Text>} {/* Display error message */}
+
+
 
         {loading ? <Loader size="sm" mt="md" /> : (
           <Button fullWidth mt="md" type="submit" disabled={!form.values.newSectionId.trim()}>

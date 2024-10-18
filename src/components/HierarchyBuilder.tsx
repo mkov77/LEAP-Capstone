@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useDisclosure } from '@mantine/hooks';
 import Tree from 'react-d3-tree';
 import { RawNodeDatum, CustomNodeElementProps } from 'react-d3-tree';
+import pathProps from 'react-d3-tree'
 import { Unit } from './Cards';
 import { SegmentedControl, Modal, Tabs, Select, TextInput, Button, Text, HoverCard, Group } from '@mantine/core';
 import axios from 'axios';
