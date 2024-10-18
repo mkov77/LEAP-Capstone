@@ -97,21 +97,25 @@ export default function UnitCreationModule({ isOpen, onClose }: UnitCreationProp
 
       setSubmitSuccess(true);
       form.reset(); // Reset the form after successful submission
+      onClose(); // Close the modal after submission
     } catch (error) {
       console.error('Error submitting form:', error);
-      setSubmitError('An error occurred while submitting the form.');
+      setSubmitError('Unit creator names must be unique.');
     } finally {
       setIsLoading(false);
-      onClose(); // Close the modal after submission
     }
   };
 
+  const handleClose = () => {
+    form.reset(); // Reset form values when the modal closes
+    onClose();    // Call the parent-provided onClose function
+    setSubmitError(null);
+  };
+
   return (
-    <Modal opened={isOpen} onClose={onClose} title="Unit Creator">
+    <Modal opened={isOpen} onClose={handleClose} title="Unit Creator">
       <form onSubmit={form.onSubmit(handleSubmit)}>
         {isLoading && <Loader size={24} />}
-        {submitError && <Text color="red">{submitError}</Text>}
-        {submitSuccess && <Text color="green">Unit created successfully!</Text>}
 
         <Tabs defaultValue="unit">
           <Tabs.List>
@@ -266,6 +270,8 @@ export default function UnitCreationModule({ isOpen, onClose }: UnitCreationProp
             />
           </Tabs.Panel>
         </Tabs>
+
+        {submitError && <Text color="red" mt={10}>{submitError}</Text>}
 
         <Group grow>
           <Button type="submit" mt="md">

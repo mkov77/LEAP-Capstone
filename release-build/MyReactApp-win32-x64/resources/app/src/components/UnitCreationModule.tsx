@@ -20,7 +20,8 @@ export default function UnitCreationModule({ isOpen, onClose }: UnitCreationProp
     },
     validate: {
       unitName: (value) => (value ? null : 'Unit name is required'),
-      unitType: (value) => (value ? null : 'Unit type is required'),
+      unitType: (value) => (value !== '' ? null : 'Unit status is required'), // Adjust validation for unitType
+
     },
   });
 
@@ -35,14 +36,16 @@ export default function UnitCreationModule({ isOpen, onClose }: UnitCreationProp
       });
   
       console.log('Form submitted with values:', response.data);
+      
+      // Only execute these if the API call is successful
       setSubmitSuccess(true);
       form.reset(); // Reset the form after successful submission
+      onClose(); // Close the modal after submission
     } catch (error) {
       console.error('Error submitting form:', error);
       setSubmitError('An error occurred while submitting the form.');
     } finally {
       setIsLoading(false);
-      onClose(); // Close the modal after submission
     }
   };
   
@@ -75,7 +78,6 @@ export default function UnitCreationModule({ isOpen, onClose }: UnitCreationProp
         ) : (
           <>
             {submitError && <Text color="red">{submitError}</Text>}
-            {submitSuccess && <Text color="green">Unit created successfully!</Text>}
             <Button type="submit" mt="md">
               Submit
             </Button>
