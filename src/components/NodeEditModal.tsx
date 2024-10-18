@@ -475,7 +475,7 @@ export default function NodeEditModal({ isOpen, onClose, nodeID, is_friendly, us
 
 
     const isCompleteAddNode = () => {
-        const requiredFields = ['unit_name', 'unit_type', 'unit_health', 'unit_role', 'unit_size', 'unit_posture', 'unit_readiness', 'unit_skill'];
+        const requiredFields = ['updated_unit_name', 'unit_type', 'unit_health', 'unit_role', 'unit_size', 'unit_posture', 'unit_readiness', 'unit_skill'];
         return requiredFields.every(field => !!formValues[field as keyof typeof formValues]);
     };
 
