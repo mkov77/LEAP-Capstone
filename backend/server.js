@@ -820,6 +820,7 @@ app.post('/api/newsectionunit/tactics', async (req, res) => {
   console.log("Attempting to store tactics record");
 
   const {
+    unit_id,
     awareness,
     logistics,
     coverage,
@@ -832,9 +833,10 @@ app.post('/api/newsectionunit/tactics', async (req, res) => {
   try {
     // Insert into the `section_tactics` table
     const result = await pool.query(
-      `INSERT INTO section_tactics (awareness, logistics, coverage, gps, comms, fire, pattern)
-       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+      `INSERT INTO section_tactics (unit_id, awareness, logistics, coverage, gps, comms, fire, pattern)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
       [
+        unit_id,
         awareness,
         logistics,
         coverage,

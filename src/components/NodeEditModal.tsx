@@ -306,6 +306,7 @@ export default function NodeEditModal({ isOpen, onClose, nodeID, is_friendly, us
 
                 // Step 2: Submit the tactics data to the section_tactics table
                 const tacticsResponse = await axios.post('http://localhost:5000/api/newsectionunit/tactics', {
+                    unit_id: newNodeID,
                     awareness: segmentValues.awareness,
                     logistics: segmentValues.logistics,
                     coverage: segmentValues.coverage,
@@ -402,7 +403,7 @@ export default function NodeEditModal({ isOpen, onClose, nodeID, is_friendly, us
         }
     
         // Close the modal and reset the form
-        closeAddNode();
+        closeEditNode();
         resetForm();
         onClose();
     };    
