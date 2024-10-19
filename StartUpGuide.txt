@@ -38,11 +38,7 @@ npm install
 If this doesn't work, you probably don’t have npm and you will have to go install it. 
 ChatGPT or google are the best resources if this applies.
 
-Step 5. Adjust the endpoints.
-You will a need an IDE (a code editor) for this. I suggest Visual Studio Code.
-Search-replace every instance of "localhost" with your computer's IP address.
-
-Step 6. Starting the program.
+Step 5. Starting the program.
 Go to your file explorer and locate the project folder. At the root of the project folder,
 double click to open STARTUP.bat. This will launch the site and the backend. 
 
