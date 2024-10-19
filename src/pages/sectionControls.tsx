@@ -40,13 +40,17 @@ function SectionControls() {
   }, [navigate, userRole]);
 
   useEffect(() => {
+    console.log("useEffect executed");
+    console.log("Section ID inside useEffect:", sectionId);
+  
     const fetchSectionData = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/sections/${sectionId}`);
-        console.log("We are here: ", sectionId);
+        console.log("Fetching section data...");
+        const response = await fetch(`http://localhost:5000/api/sections/${sectionId}/status`);
         if (response.ok) {
           const sectionData = await response.json();
           setSectionOnline(sectionData.isonline);
+          console.log('Section status:', sectionId, sectionData.isonline);
         } else {
           console.error('Failed to fetch section data');
         }
@@ -54,7 +58,7 @@ function SectionControls() {
         console.error('Error fetching section data:', error);
       }
     };
-
+  
     fetchSectionData();
   }, [sectionId]);
 
