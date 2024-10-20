@@ -122,7 +122,7 @@ const CustomNode = ({ nodeDatum, toggleModal }: CustomNodeElementProps & { toggl
             y={is_friendly ? -cardHeight / 2 + 10 : -cardHeight / 2 + 5 }
             width={is_friendly ? 100 : 75}
           />
-          <text fill="white" x={((Number(nodeDatum.name.length) / 2)*-9.5)+7.5} y={cardHeight / 2 - 10} width={40} textAnchor="start" stroke="none">
+          <text fill="white" x={(-cardWidth / 2 + 15 + cardWidth / 2) / 2} y={cardHeight / 2 - 10} width={40} textAnchor="middle" stroke="none">
             {nodeDatum.name}
           </text>
 
