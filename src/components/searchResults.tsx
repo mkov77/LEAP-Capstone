@@ -22,11 +22,12 @@ const SearchResultList: React.FC<Props> = (props) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get<Unit[]>('http://localhost:5000/api/units/sectionSort', {
+        const response = await axios.get<Unit[]>('http://localhost:5000/api/sectionunits/sectionSort', {
           params: {
             sectionid: userSection  // Pass userSection as a query parameter
           }
         });
+        console.log(response.data);
         setUnits(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);

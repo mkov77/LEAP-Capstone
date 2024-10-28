@@ -54,7 +54,7 @@ export default function SectionCopyModule({ isOpen, onClose, sectionToCopy, onCo
       } else {
         const errorData = await response.json();
         console.log(`Error: ${errorData.message}`);
-        setErrorMessage('An error occurred. Session name must be unique.');
+        setErrorMessage('An error occurred. Make sure session name is unique.');
       }
     } catch (error) {
       console.log(`Error: ${error}`);
