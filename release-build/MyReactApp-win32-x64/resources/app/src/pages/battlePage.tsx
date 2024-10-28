@@ -560,10 +560,14 @@ function BattlePage() {
   const tacticToRow = (answers: Form[]) => (
     answers.map((tactic) => (
       <Table.Tr key={tactic.ID}>
-        <Table.Td>{tactic.ID}</Table.Td>
-        <Table.Td>{tactic.friendlyScore}</Table.Td>
-        <Table.Td>{tactic.enemyScore}</Table.Td>
-      </Table.Tr>
+      <Table.Td>{tactic.ID}</Table.Td>
+      <Table.Td>
+        {tactic.friendlyScore === weights[tactic.ID.toLowerCase().replace(/\s/g, '') as WeightKeys].yes 
+          ? 'Yes' 
+          : 'No'}
+      </Table.Td>
+      <Table.Td>{tactic.enemyScore > 0 ? 'Yes' : 'No'}</Table.Td>
+    </Table.Tr>
     ))
   );
 

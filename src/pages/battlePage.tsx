@@ -562,10 +562,11 @@ function BattlePage() {
     answers.map((tactic) => (
       <Table.Tr key={tactic.ID}>
         <Table.Td>{tactic.ID}</Table.Td>
-        <Table.Td>{tactic.friendlyScore}</Table.Td>
-        <Table.Td>{tactic.enemyScore}</Table.Td>
+        <Table.Td>{tactic.friendlyScore !== 0 ? 'Yes' : 'No'}</Table.Td>
+        <Table.Td>{tactic.enemyScore !== 0 ? 'Yes' : 'No'}</Table.Td>
       </Table.Tr>
     ))
+    
   );
 
   // Sets value of readiness bar in inital display based on readiness level that is initialized
@@ -1102,8 +1103,8 @@ function BattlePage() {
                       <Table.Thead>
                         <Table.Tr>
                           <Table.Th>Tactic</Table.Th>
-                          <Table.Th style={{ color: '#3d85c6' }}>Friendly Score</Table.Th>
-                          <Table.Th style={{ color: '#c1432d' }}>Enemy Score</Table.Th>
+                          <Table.Th style={{ color: '#3d85c6' }}>Friendly Tactic</Table.Th>
+                          <Table.Th style={{ color: '#c1432d' }}>Enemy Tactic</Table.Th>
                         </Table.Tr>
                       </Table.Thead>
                       <Table.Tbody>{tacticToRow(answers)}</Table.Tbody>
