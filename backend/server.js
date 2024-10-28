@@ -922,6 +922,8 @@ app.get('/api/preset_tactics', async (req, res) => {
 app.post('/api/sections/copy', async (req, res) => {
   const { originalSectionId, newSectionId } = req.body;
 
+  console.log("!!!!! CHECKING CHECKING CHECKING");
+
   try {
     // Step 1: Check if the new section ID already exists
     const checkSectionIdExists = await pool.query(
@@ -930,58 +932,81 @@ app.post('/api/sections/copy', async (req, res) => {
     );
 
     if (checkSectionIdExists.rowCount > 0) {
-      return res.status(400).json({ message: 'Scenerio already exists. Please choose a unique name.' });
+      return res.status(400).json({ message: 'Scenario already exists. Please choose a unique name.' });
     }
 
     // Step 2: Create the new section
     await pool.query('INSERT INTO sections (sectionid, isonline) VALUES ($1, false)', [newSectionId]);
 
-    // Step 3: Copy all units from the original section to the new section
+    // Step 3: Copy units from original section to new section
     const units = await pool.query('SELECT * FROM section_units WHERE section_id = $1', [originalSectionId]);
 
-    const newUnitIds = {}; // This will store a mapping of original `unit_id` to new `unit_id`
+    if (units.rows.length === 0) {
+      return res.status(400).json({ message: 'No units found in the original section.' });
+    }
+
+    const newUnitIds = {}; // Store original-to-new unit ID mappings
 
     const unitInsertPromises = units.rows.map(async (unit) => {
-      // Insert each unit into the new section and generate a new `unit_id`
-      const newUnit = await pool.query(
-        `INSERT INTO section_units (unit_name, unit_health, unit_type, unit_role, unit_size, unit_posture,
-        unit_mobility, unit_readiness, unit_skill, is_friendly, is_root, section_id, children)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-        RETURNING unit_id`,
-        [
-          unit.unit_name, unit.unit_health, unit.unit_type, unit.unit_role, unit.unit_size, unit.unit_posture,
-          unit.unit_mobility, unit.unit_readiness, unit.unit_skill, unit.is_friendly, unit.is_root, newSectionId, unit.children
-        ]
-      );
+      try {
+        const newUnit = await pool.query(
+          `INSERT INTO section_units (unit_name, unit_health, unit_type, unit_role, unit_size, unit_posture,
+          unit_mobility, unit_readiness, unit_skill, is_friendly, is_root, section_id, children)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+          RETURNING unit_id`,
+          [
+            unit.unit_name, unit.unit_health, unit.unit_type, unit.unit_role, unit.unit_size, unit.unit_posture,
+            unit.unit_mobility, unit.unit_readiness, unit.unit_skill, unit.is_friendly, unit.is_root, 
+            newSectionId, unit.children
+          ]
+        );
 
-      const newUnitId = newUnit.rows[0].unit_id;
-      newUnitIds[unit.unit_id] = newUnitId; // Map original `unit_id` to the new `unit_id`
+        const newUnitId = newUnit.rows[0]?.unit_id;
 
-      // Return the promise
-      return newUnit;
+        if (newUnitId) {
+          newUnitIds[unit.unit_id] = newUnitId;
+        } else {
+          console.warn(`Failed to insert unit: ${unit.unit_name}`);
+        }
+      } catch (error) {
+        console.error(`Error inserting unit: ${unit.unit_name}`, error);
+      }
     });
 
     await Promise.all(unitInsertPromises);
 
-    // Step 4: Copy all tactics from the original section to the new section based on the new unit_id mapping
-    const tactics = await pool.query('SELECT * FROM section_tactics WHERE unit_id = ANY($1)', [units.rows.map(u => u.unit_id)]);
+    console.log('Unit Mapping:', newUnitIds); // Debugging output
 
-    const tacticInsertPromises = tactics.rows.map((tactic) => {
-      const newUnitId = newUnitIds[tactic.unit_id]; // Get the new `unit_id` from the mapping
+    // Ensure all tactics reference valid new unit IDs
+    const tactics = await pool.query(
+      'SELECT * FROM section_tactics WHERE unit_id = ANY($1)',
+      [units.rows.map((u) => u.unit_id)]
+    );
 
-      return pool.query(
-        `INSERT INTO section_tactics (unit_id, awareness, logistics, coverage, gps, comms, fire, pattern)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-        [newUnitId, tactic.awareness, tactic.logistics, tactic.coverage, tactic.gps, tactic.comms, tactic.fire, tactic.pattern]
-      );
-    });
+    const validTacticInsertPromises = tactics.rows
+      .filter((tactic) => {
+        const newUnitId = newUnitIds[tactic.unit_id];
+        if (!newUnitId) {
+          console.warn(`No mapping found for unit_id: ${tactic.unit_id}`);
+        }
+        return newUnitId; // Only insert if mapping exists
+      })
+      .map((tactic) => {
+        const newUnitId = newUnitIds[tactic.unit_id];
 
-    await Promise.all(tacticInsertPromises);
+        return pool.query(
+          `INSERT INTO section_tactics (unit_id, awareness, logistics, coverage, gps, comms, fire, pattern)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+          [newUnitId, tactic.awareness, tactic.logistics, tactic.coverage, tactic.gps, tactic.comms, tactic.fire, tactic.pattern]
+        );
+      });
+
+    await Promise.all(validTacticInsertPromises);
 
     res.status(200).json({ message: 'Section and units copied successfully' });
   } catch (error) {
     console.error('Error copying section:', error);
-    res.status(500).json({ message: 'Error copying section' });
+    res.status(500).json({ message: 'Failed to copy section.', error: error.message });
   }
 });
 
@@ -1264,124 +1289,121 @@ app.delete('/api/units/:id', async (req, res) => {
   }
 });
 
-/**
- * Endpoint to copy a section and its associated data (units, tactics, tree)
- */
 app.post('/api/copySection', async (req, res) => {
   const { oldSectionId, newSectionId } = req.body;
-  console.log(oldSectionId);
-  console.log(newSectionId);
+  console.log(oldSectionId, newSectionId);
 
   if (!oldSectionId || !newSectionId) {
-      return res.status(400).json({ message: 'Both oldSectionId and newSectionId are required.' });
+    return res.status(400).json({ message: 'Both oldSectionId and newSectionId are required.' });
   }
 
   const client = await pool.connect(); // Connect to the database
   try {
-      // Begin transaction
-      await client.query('BEGIN');
+    // Begin transaction
+    await client.query('BEGIN');
 
-      // Step 1: Copy the section itself
-      const sectionResult = await client.query(
-          'SELECT * FROM sections WHERE sectionid = $1',
-          [oldSectionId]
+    // Step 1: Copy the section itself
+    const sectionResult = await client.query(
+      'SELECT * FROM sections WHERE sectionid = $1',
+      [oldSectionId]
+    );
+    if (sectionResult.rows.length === 0) {
+      throw new Error(`Section with id ${oldSectionId} does not exist.`);
+    }
+
+    const oldSection = sectionResult.rows[0];
+    await client.query(
+      'INSERT INTO sections (sectionid, isonline) VALUES ($1, $2)',
+      [newSectionId, oldSection.isonline]
+    );
+
+    // Step 2: Copy section_units (nodes) for the old section
+    const unitsResult = await client.query(
+      'SELECT * FROM section_units WHERE section_id = $1',
+      [oldSectionId]
+    );
+
+    const unitIdMap = {}; // Map old unit_id to new unit_id
+
+    for (let unit of unitsResult.rows) {
+      const newUnitResult = await client.query(
+        `INSERT INTO section_units 
+        (unit_name, unit_health, unit_type, unit_role, unit_size, unit_posture, unit_mobility, unit_readiness, unit_skill, is_friendly, is_root, section_id)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+        RETURNING unit_id`,
+        [
+          unit.unit_name,
+          unit.unit_health,
+          unit.unit_type,
+          unit.unit_role,
+          unit.unit_size,
+          unit.unit_posture,
+          unit.unit_mobility,
+          unit.unit_readiness,
+          unit.unit_skill,
+          unit.is_friendly,
+          unit.is_root,
+          newSectionId
+        ]
       );
-      if (sectionResult.rows.length === 0) {
-          throw new Error(`Section with id ${oldSectionId} does not exist.`);
-      }
 
-      const oldSection = sectionResult.rows[0];
+      const newUnitId = newUnitResult.rows[0].unit_id;
+      unitIdMap[unit.unit_id] = newUnitId; // Map old unit_id to new unit_id
+
+      // Step 3: Copy section_tactics for each unit
+      const tacticsResult = await client.query(
+        'SELECT * FROM section_tactics WHERE unit_id = $1',
+        [unit.unit_id]
+      );
+
+      for (let tactic of tacticsResult.rows) {
+        await client.query(
+          `INSERT INTO section_tactics 
+          (unit_id, awareness, logistics, coverage, gps, comms, fire, pattern)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+          [
+            newUnitId, // Correctly map to the new unit_id
+            tactic.awareness,
+            tactic.logistics,
+            tactic.coverage,
+            tactic.gps,
+            tactic.comms,
+            tactic.fire,
+            tactic.pattern
+          ]
+        );
+      }
+    }
+
+    // Step 4: Copy section_tree relationships
+    const treeResult = await client.query(
+      'SELECT * FROM section_tree WHERE child_id = ANY(SELECT unit_id FROM section_units WHERE section_id = $1)',
+      [oldSectionId]
+    );
+
+    for (let relationship of treeResult.rows) {
+      const newChildId = unitIdMap[relationship.child_id];
+      const newParentId = unitIdMap[relationship.parent_id];
+
       await client.query(
-          'INSERT INTO sections (sectionid, isonline) VALUES ($1, $2)',
-          [newSectionId, oldSection.isonline]
+        `INSERT INTO section_tree (parent_id, child_id) VALUES ($1, $2)`,
+        [newParentId, newChildId]
       );
+    }
 
-      // Step 2: Copy section_units (nodes) for the old section
-      const unitsResult = await client.query(
-          'SELECT * FROM section_units WHERE section_id = $1',
-          [oldSectionId]
-      );
-
-      const unitIdMap = {}; // Map old unit_id to new unit_id
-
-      for (let unit of unitsResult.rows) {
-          const newUnitResult = await client.query(
-              `INSERT INTO section_units 
-              (unit_name, unit_health, unit_type, unit_role, unit_size, unit_posture, unit_mobility, unit_readiness, unit_skill, is_friendly, is_root, section_id)
-              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-              RETURNING unit_id`,
-              [
-                  unit.unit_name,
-                  unit.unit_health,
-                  unit.unit_type,
-                  unit.unit_role,
-                  unit.unit_size,
-                  unit.unit_posture,
-                  unit.unit_mobility,
-                  unit.unit_readiness,
-                  unit.unit_skill,
-                  unit.is_friendly,
-                  unit.is_root,
-                  newSectionId
-              ]
-          );
-
-          const newUnitId = newUnitResult.rows[0].unit_id;
-          unitIdMap[unit.unit_id] = newUnitId; // Map old unit_id to new unit_id
-
-          // Step 3: Copy section_tactics for each unit
-          const tacticsResult = await client.query(
-              'SELECT * FROM section_tactics WHERE unit_id = $1',
-              [unit.unit_id]
-          );
-
-          if (tacticsResult.rows.length > 0) {
-              const oldTactics = tacticsResult.rows[0];
-              await client.query(
-                  `INSERT INTO section_tactics 
-                  (awareness, logistics, coverage, gps, comms, fire, pattern)
-                  VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-                  [
-                      oldTactics.awareness,
-                      oldTactics.logistics,
-                      oldTactics.coverage,
-                      oldTactics.gps,
-                      oldTactics.comms,
-                      oldTactics.fire,
-                      oldTactics.pattern
-                  ]
-              );
-          }
-      }
-
-      // Step 4: Copy section_tree relationships
-      const treeResult = await client.query(
-          'SELECT * FROM section_tree WHERE child_id = ANY(SELECT unit_id FROM section_units WHERE section_id = $1)',
-          [oldSectionId]
-      );
-
-      for (let relationship of treeResult.rows) {
-          const newChildId = unitIdMap[relationship.child_id];
-          const newParentId = unitIdMap[relationship.parent_id];
-
-          await client.query(
-              `INSERT INTO section_tree (parent_id, child_id) VALUES ($1, $2)`,
-              [newParentId, newChildId]
-          );
-      }
-
-      // Commit the transaction
-      await client.query('COMMIT');
-      res.status(200).json({ message: `Section ${oldSectionId} copied to ${newSectionId} successfully.` });
+    // Commit the transaction
+    await client.query('COMMIT');
+    res.status(200).json({ message: `Section ${oldSectionId} copied to ${newSectionId} successfully.` });
   } catch (error) {
-      // Rollback the transaction in case of error
-      await client.query('ROLLBACK');
-      console.error('Error copying section:', error);
-      res.status(500).json({ message: 'Failed to copy section.', error: error.message });
+    // Rollback the transaction in case of error
+    await client.query('ROLLBACK');
+    console.error('Error copying section:', error);
+    res.status(500).json({ message: 'Failed to copy section.', error: error.message });
   } finally {
-      client.release();
+    client.release();
   }
 });
+
 
 
 app.listen(port, () => {
