@@ -133,7 +133,7 @@ export default function NodeEditModal({ isOpen, onClose, nodeID, is_friendly, us
     const handleModalClose = () => {
         resetForm();  // Reset the form on modal close
         closeAddNode();    // Close the modal
-      };
+    };
 
     // FUNCTION: FETCH PRESET UNITS
     const fetchPresetUnits = async () => {
@@ -270,10 +270,10 @@ export default function NodeEditModal({ isOpen, onClose, nodeID, is_friendly, us
         event.preventDefault();
 
         const requiredFields = [
-            'updated_unit_name', 'unit_type', 'unit_health', 
-            'unit_role', 'unit_size', 'unit_posture', 
+            'updated_unit_name', 'unit_type', 'unit_health',
+            'unit_role', 'unit_size', 'unit_posture',
             'unit_readiness', 'unit_skill'
-          ];
+        ];
 
         // Check required fields
         for (const field of requiredFields) {
@@ -345,9 +345,9 @@ export default function NodeEditModal({ isOpen, onClose, nodeID, is_friendly, us
 
     const handleEditSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
-    
+
         const requiredFields = ['unit_name', 'unit_type', 'unit_health', 'unit_role', 'unit_size', 'unit_posture', 'unit_readiness', 'unit_skill'];
-    
+
         // Check required fields
         for (const field of requiredFields) {
             if (!nodeValues[field as keyof typeof nodeValues]) {
@@ -355,7 +355,7 @@ export default function NodeEditModal({ isOpen, onClose, nodeID, is_friendly, us
                 return; // Stop submission if any required field is missing
             }
         }
-    
+
         try {
             // Step 1: Submit the unit data to the section_units table
             const unitResponse = await axios.post(`http://localhost:5000/api/update_unit`, {
@@ -373,10 +373,10 @@ export default function NodeEditModal({ isOpen, onClose, nodeID, is_friendly, us
                 is_root: is_root,
                 section_id: userSection
             });
-    
+
             if (unitResponse.status === 200 || unitResponse.status === 201) {
                 console.log('Updated unit:', unit?.unit_id);
-    
+
                 // Step 2: Submit the tactics data to the section_tactics table
                 const tacticsResponse = await axios.post('http://localhost:5000/api/update/tactics', {
                     unit_id: unit?.unit_id, // Include unit_id to associate tactics with the correct unit
@@ -388,25 +388,25 @@ export default function NodeEditModal({ isOpen, onClose, nodeID, is_friendly, us
                     fire: unitTactics.fire,
                     pattern: unitTactics.pattern,
                 });
-    
+
                 if (tacticsResponse.status === 200 || tacticsResponse.status === 201) {
                     console.log('Tactics successfully updated for unit ID:', unit?.unit_id);
                 } else {
                     console.error('Failed to update tactics:', tacticsResponse);
                 }
-    
+
             } else {
                 console.error('Failed to update unit:', unitResponse);
             }
         } catch (error) {
             console.error('Error updating unit and tactics:', error);
         }
-    
+
         // Close the modal and reset the form
         closeEditNode();
         resetForm();
         onClose();
-    };    
+    };
 
     // FUNCTION: RESET FORM
     const resetForm = () => {
@@ -845,8 +845,7 @@ export default function NodeEditModal({ isOpen, onClose, nodeID, is_friendly, us
                                 name="unit"
                                 required
                                 value={nodeValues.unit_name}
-                            // onChange={(value) => handleNodeChange(value, 'ID')}
-                            // data={unit?.unit_name}
+                                onChange={(event) => handleNodeChange(event.target.value, 'unit_name')}
                             />
 
                             <Select
