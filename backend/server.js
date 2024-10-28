@@ -661,6 +661,18 @@ app.get('/api/sectionunits/sectionSort', async (req, res) => {
   }
 });
 
+app.get('/api/sectionunits/enemyUnits', async (req, res) => {
+  const sectionid = req.query.sectionid;
+  try {
+    const result = await pool.query('SELECT * FROM section_units WHERE section_id = $1 AND "is_friendly"::boolean = false AND "unit_health" != 0', [sectionid]);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('sectionid: ', [sectionid]);
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
 
 app.get('/api/units/sectionNullandAllianceSort', async (req, res) => {
   const sectionid = req.query.sectionid;

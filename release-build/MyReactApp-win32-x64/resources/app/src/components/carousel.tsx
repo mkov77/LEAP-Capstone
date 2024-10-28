@@ -21,7 +21,7 @@ const unitTypes = [
     value: 'JFLCC'
   },
   {
-    label: 'JFSOC',
+    label: 'JFSOCC',
     value: 'Special Operations Forces'
   }
 ];

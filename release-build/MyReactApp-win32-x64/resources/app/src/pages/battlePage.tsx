@@ -110,24 +110,6 @@ function BattlePage() {
 
 
 
-  // // Function to filter units where isFriendly is false
-  // const filterUnfriendlyUnits = () => {
-  //   const unfriendlyUnits = units.filter(unit => unit.isFriendly === false);
-  //   setEnemyUnits(unfriendlyUnits);
-  // };
-
-  // // Optionally call the filter function when units data is fetched
-  // useEffect(() => {
-  //   console.log(units)
-  //   if (units.length > 0) {
-  //     console.log('Its running');
-  //     filterUnfriendlyUnits();
-  //     console.log(enemyUnits)
-  //   }
-  // }, [units]);
-
-
-
   // initializes the characteristics of each enemy unit
   const unit = units.find((u) => u.unit_id === selectedUnit);
   const {
@@ -1294,10 +1276,8 @@ function BattlePage() {
   // Deals with an issue with the refresh button
   else {
     console.log('Selected Unit: ', selectedUnit);
+    console.log('ERRRRORORROROROR');
     navigate('/')
-    return (
-      <Text> Error. Rerouting. </Text>
-    );
   }
 }
 

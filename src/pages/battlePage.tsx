@@ -61,7 +61,7 @@ function BattlePage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get<Unit[]>('http://localhost:5000/api/units/sectionSort', {
+        const response = await axios.get<Unit[]>('http://localhost:5000/api/sectionunits/sectionSort', {
           params: {
             sectionid: userSection  // Pass userSection as a query parameter
           }
@@ -78,7 +78,7 @@ function BattlePage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get<Unit[]>('http://localhost:5000/api/units/enemyUnits', {
+        const response = await axios.get<Unit[]>('http://localhost:5000/api/sectionunits/enemyUnits', {
           params: {
             sectionid: userSection  // Pass userSection as a query parameter
           }
@@ -109,39 +109,18 @@ function BattlePage() {
   }, [enemyUnit]);
 
 
-
-  // // Function to filter units where isFriendly is false
-  // const filterUnfriendlyUnits = () => {
-  //   const unfriendlyUnits = units.filter(unit => unit.isFriendly === false);
-  //   setEnemyUnits(unfriendlyUnits);
-  // };
-
-  // // Optionally call the filter function when units data is fetched
-  // useEffect(() => {
-  //   console.log(units)
-  //   if (units.length > 0) {
-  //     console.log('Its running');
-  //     filterUnfriendlyUnits();
-  //     console.log(enemyUnits)
-  //   }
-  // }, [units]);
-
-
-
   // initializes the characteristics of each enemy unit
   const unit = units.find((u) => u.unit_id === selectedUnit);
   const {
-    unit_name,
     unit_type,
     unit_health,
     unit_size,
     unit_mobility,
     unit_readiness,
     unit_skill,
-    unit_id
+    unit_id,
+    unit_name
   } = unit || {};
-
-
 
 
   // function to update unit health after each round of an engagement
@@ -302,6 +281,8 @@ function BattlePage() {
     // 'r' generates a random number 
     let r = Math.floor(Math.random() * (5 - 0 + 1)) + 0;
     let r_enemy = Math.floor(Math.random() * (5 - 0 + 1)) + 0;
+    console.log("!! Friendly: ", r);
+    console.log("enemy r: ", r_enemy);
 
     // Initializes 'b' to zero. 'b' is the variable for the range of weapons given for each unit type
     let b = 0;
@@ -362,7 +343,9 @@ function BattlePage() {
     // Calculates the damage previously done to the friendly unit
     let prevFriendlyDamage
     if (b_enemy > 0) {
-      prevFriendlyDamage = Math.exp(-((r ** 2) / (2 * (b_enemy ** 2))));
+      prevFriendlyDamage = Math.exp(-((r ** 2) / (2 * ((b_enemy*(calculateEnemyRealTimeScore()/100)) ** 2))));
+      console.log("!!!!! ", calculateRealTimeScore() )
+      console.log("!!!!! ", calculateEnemyRealTimeScore() )
     }
     else {
       prevFriendlyDamage = 0;
@@ -392,7 +375,7 @@ function BattlePage() {
     let prevEnemyDamage = 0;
     // Calculates the damage previously done to the enemy unit
     if (b > 0) {
-      prevEnemyDamage = Math.exp(-((r_enemy ** 2) / (2 * (b ** 2))));
+      prevEnemyDamage = Math.exp(-((r_enemy ** 2) / (2 * ((b*(calculateRealTimeScore()/100)) ** 2))));
     }
     else {
       prevEnemyDamage = 0;
@@ -750,7 +733,7 @@ function BattlePage() {
                     </Card.Section>
 
                     {/* Displays a card that contains pertinent information about the selected friendly unit */}
-                    <Card.Section><Center><h2>{selectedUnit}</h2></Center></Card.Section>
+                    <Card.Section><Center><h2>{unit_name}</h2></Center></Card.Section>
                     {unit ? (
                       <Text size="xl" style={{ whiteSpace: 'pre-line' }}>
                         <strong>Type:</strong> {unit_type}<br />
@@ -793,7 +776,7 @@ function BattlePage() {
 
                       </Card.Section>
 
-                      <Card.Section><Center><h2>{enemyUnit.unit_id}</h2></Center></Card.Section>
+                      <Card.Section><Center><h2>{enemyUnit.unit_name}</h2></Center></Card.Section>
                       {unit ? (
                         <Text size="xl">
                           <strong>Type:</strong> {enemyUnit.unit_type}<br />
@@ -827,7 +810,7 @@ function BattlePage() {
                         <Select
                           label="Select Enemy Unit"
                           placeholder="Select Enemy Unit"
-                          data={enemyUnits.map(eUnit => ({ value: eUnit.unit_id.toString(), label: eUnit.unit_id.toString() }))}
+                          data={enemyUnits.map(eUnit => ({ value: eUnit.unit_id.toString(), label: eUnit.unit_name }))}
                           searchable
                           value={enemyUnit}
                           onChange={handleSelectEnemy}
@@ -855,14 +838,14 @@ function BattlePage() {
               <p>Phase 1: Force Strength</p>
               <Grid>
                 <Grid.Col span={4}>
-                  <h1>Friendly: {selectedUnit}</h1>
+                  <h1>Friendly: {unit_name}</h1>
                   <p>Aware of OPFOR presence?</p>
                   <SegmentedControl value={question1} onChange={setQuestion1} size='xl' radius='xs' color="gray" data={['Yes', 'No']} />
                   <p>Within logistics support range?</p>
                   <SegmentedControl value={question2} onChange={setQuestion2} size='xl' radius='xs' color="gray" data={['Yes', 'No']} />
                 </Grid.Col>
                 <Grid.Col span={6}>
-                  <h1>Enemy: {enemyUnit?.unit_id}</h1>
+                  <h1>Enemy: {enemyUnit?.unit_name}</h1>
                   <p>Aware of OPFOR presence?</p>
                   <SegmentedControl
                     size='xl'
@@ -898,14 +881,14 @@ function BattlePage() {
               <p>Phase 2: Tactical Advantage</p>
               <Grid>
                 <Grid.Col span={6}>
-                  <h1>Friendly: {selectedUnit}</h1>
+                  <h1>Friendly: {unit_name}</h1>
                   <p>Under ISR coverage?</p>
                   <SegmentedControl value={question3} onChange={setQuestion3} size='xl' radius='xs' color="gray" data={['Yes', 'No']} />
                   <p>Working GPS?</p>
                   <SegmentedControl value={question4} onChange={setQuestion4} size='xl' radius='xs' color="gray" data={['Yes', 'No']} />
                 </Grid.Col>
                 <Grid.Col span={6}>
-                  <h1>Enemy: {enemyUnit?.unit_id}</h1>
+                  <h1>Enemy: {enemyUnit?.unit_name}</h1>
                   <p>Under ISR coverage?</p>
                   <SegmentedControl
                     size='xl'
@@ -941,14 +924,14 @@ function BattlePage() {
               <p>Phase 3: Fire Support</p>
               <Grid>
                 <Grid.Col span={6}>
-                  <h1>Friendly: {selectedUnit}</h1>
+                  <h1>Friendly: {unit_name}</h1>
                   <p>Working communications?</p>
                   <SegmentedControl value={question5} onChange={setQuestion5} size='xl' radius='xs' color="gray" data={['Yes', 'No']} />
                   <p>Within fire support range?</p>
                   <SegmentedControl value={question6} onChange={setQuestion6} size='xl' radius='xs' color="gray" data={['Yes', 'No']} />
                 </Grid.Col>
                 <Grid.Col span={6}>
-                  <h1>Enemy: {enemyUnit?.unit_id}</h1>
+                  <h1>Enemy: {enemyUnit?.unit_name}</h1>
                   <p>Working communications?</p>
                   <SegmentedControl
                     size='xl'
@@ -984,12 +967,12 @@ function BattlePage() {
               <p>Phase 4: Terrain</p>
               <Grid>
                 <Grid.Col span={6}>
-                  <h1>Friendly: {selectedUnit}</h1>
+                  <h1>Friendly: {unit_name}</h1>
                   <p>Accessible by pattern force?</p>
                   <SegmentedControl value={question7} onChange={setQuestion7} size='xl' radius='xs' color="gray" data={['Yes', 'No']} disabled={progress !== 0} />
                 </Grid.Col>
                 <Grid.Col span={6}>
-                  <h1>Enemy: {enemyUnit?.unit_id}</h1>
+                  <h1>Enemy: {enemyUnit?.unit_name}</h1>
                   <p>Accessible by pattern force?</p>
                   <SegmentedControl
                     size='xl'
@@ -1057,7 +1040,7 @@ function BattlePage() {
                     {/* Friendly Damage Bar */}
                     <Grid >
                       <Grid.Col span={2} style={{ display: 'flex', alignItems: 'center' }}>
-                        <Text size="sm">{unit_id}</Text>
+                        <Text size="sm">{unit_name}</Text>
                       </Grid.Col>
 
                       <Grid.Col span={10}>
@@ -1084,7 +1067,7 @@ function BattlePage() {
                     {/* Enemy Damage Bar */}
                     <Grid >
                       <Grid.Col span={2} style={{ display: 'flex', alignItems: 'center' }}>
-                        <Text size="sm">{enemyUnit?.unit_id}</Text>
+                        <Text size="sm">{enemyUnit?.unit_name}</Text>
                       </Grid.Col>
 
                       <Grid.Col span={10}>
@@ -1302,4 +1285,3 @@ function BattlePage() {
 }
 
 export default BattlePage;
-
