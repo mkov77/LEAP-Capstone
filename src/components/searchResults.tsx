@@ -27,7 +27,7 @@ const SearchResultList: React.FC<Props> = (props) => {
             sectionid: userSection  // Pass userSection as a query parameter
           }
         });
-        console.log(response.data);
+        // console.log(response.data);
         setUnits(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -49,9 +49,7 @@ const SearchResultList: React.FC<Props> = (props) => {
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
         {/* Pass array of units to the GridC component */}
         {filteredUnits.map(unitResult => (
-
           <GridC key={unitResult.unit_id} units={[unitResult]} /> // Pass array of units
-
         ))}
       </div>
     </div>

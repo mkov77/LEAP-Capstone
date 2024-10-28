@@ -23,6 +23,10 @@ const unitTypes = [
   {
     label: 'JFSOC',
     value: 'Special Operations Forces'
+  },
+  {
+    label: 'C2',
+    value: 'Command and Control'
   }
 ];
 
@@ -88,7 +92,7 @@ function CarouselC() {
 // Function to filter units by type
 function filterUnitsByType(type: string, units: Unit[]): Unit[] {
   if (type === 'JFLCC') {
-    return units.filter((unit) => unit.unit_type !== 'Special Operations Forces');
+    return units.filter((unit) => unit.unit_type !== 'Special Operations Forces' && unit.unit_type !== 'Command and Control');
   } else {
     return units.filter((unit) => unit.unit_type === type);
   }
