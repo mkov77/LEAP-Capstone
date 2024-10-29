@@ -570,30 +570,30 @@ app.get('/api/presetunits', async (req, res) => {
   }
 });
 
-// Endpoint to delete a unit by its ID
-app.delete('/api/units/:id', async (req, res) => {
-  const { id } = req.params;
-  console.log('Deleting unit with id:', id);
+// // Endpoint to delete a unit by its ID
+// app.delete('/api/units/:id', async (req, res) => {
+//   const { id } = req.params;
+//   console.log('Deleting unit with id:', id);
   
-  try {
-    // Step 1: Delete from unit_tactics table
-    const deleteTacticsQuery = 'DELETE FROM unit_tactics WHERE "ID" = $1';
-    await pool.query(deleteTacticsQuery, [id]);
+//   try {
+//     // Step 1: Delete from unit_tactics table
+//     const deleteTacticsQuery = 'DELETE FROM unit_tactics WHERE "ID" = $1';
+//     await pool.query(deleteTacticsQuery, [id]);
     
-    // Step 2: Delete from units table
-    const deleteUnitsQuery = 'DELETE FROM units WHERE id = $1';
-    const deleteResult = await pool.query(deleteUnitsQuery, [id]);
+//     // Step 2: Delete from units table
+//     const deleteUnitsQuery = 'DELETE FROM units WHERE id = $1';
+//     const deleteResult = await pool.query(deleteUnitsQuery, [id]);
 
-    if (deleteResult.rowCount > 0) {
-      res.json({ success: true });
-    } else {
-      res.status(404).json({ error: 'Unit not found' });
-    }
-  } catch (error) {
-    console.error('Error deleting unit:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
+//     if (deleteResult.rowCount > 0) {
+//       res.json({ success: true });
+//     } else {
+//       res.status(404).json({ error: 'Unit not found' });
+//     }
+//   } catch (error) {
+//     console.error('Error deleting unit:', error);
+//     res.status(500).json({ error: 'Internal Server Error' });
+//   }
+// });
 
 // Endpoint to get all preset units
 app.get('/api/preset_units', async (req, res) => {
@@ -1265,7 +1265,7 @@ app.delete('/api/deleteNode/:nodeId', async (req, res) => {
 
 
 // Endpoint to delete a unit by its name
-app.delete('/api/units/:id', async (req, res) => {
+app.delete('/api/units/:unit_name', async (req, res) => {
   const { unit_name } = req.params;
   console.log('Deleting unit with name:', unit_name);
   

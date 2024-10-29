@@ -9,8 +9,7 @@ interface UnitDeleteProps {
 }
 
 interface Unit {
-  id: number;
-  unit_id: string;
+  unit_name: string;
 }
 
 export default function UnitDeleteModule({ isOpen, onClose }: UnitDeleteProps) {
@@ -21,20 +20,20 @@ export default function UnitDeleteModule({ isOpen, onClose }: UnitDeleteProps) {
 
   const form = useForm({
     initialValues: {
-      id: '',
+      unit_name: '', // Store the unit_name instead of id
     },
     validate: {
-      id: (value) => (value ? null : 'Unit selection is required'),
+      unit_name: (value) => (value ? null : 'Unit selection is required'),
     },
   });
 
   useEffect(() => {
     if (isOpen) {
-      // Fetch units with section as null
       const fetchUnits = async () => {
         try {
           setIsLoading(true);
           const response = await axios.get<Unit[]>('http://localhost:5000/api/presetunits');
+          console.log('API Response:', response.data);
           setUnits(response.data);
           setIsLoading(false);
         } catch (error) {
@@ -46,21 +45,21 @@ export default function UnitDeleteModule({ isOpen, onClose }: UnitDeleteProps) {
     }
   }, [isOpen]);
 
-  const handleSubmit = async (values: { id: string })=> {
-
-    console.log('Trying to delete ' + values.id)
+  const handleSubmit = async (values: { unit_name: string }) => {
+    console.log('Trying to delete unit with name:', values.unit_name);
 
     try {
       setIsLoading(true);
       setSubmitError(null);
       setSubmitSuccess(false);
 
-      // Send delete request to the server
-      await axios.delete(`http://localhost:5000/api/units/${values.id}`);
+      // Send delete request with the unit_name
+      await axios.delete(`http://localhost:5000/api/units/${values.unit_name}`);
 
       setSubmitSuccess(true);
       setIsLoading(false);
       form.reset();
+      onClose(); // Close the modal after successful deletion
     } catch (error) {
       console.error('Error deleting unit:', error);
       setSubmitError('Failed to delete unit');
@@ -71,24 +70,26 @@ export default function UnitDeleteModule({ isOpen, onClose }: UnitDeleteProps) {
   return (
     <Modal opened={isOpen} onClose={onClose} title="Delete a unit">
       <form onSubmit={form.onSubmit(handleSubmit)}>
-        {form.errors.id && <Text color="red">{form.errors.id}</Text>}
-
         <Select
           label="Unit Name"
           placeholder="Select unit to delete"
-          error={form.errors.id}
+          error={form.errors.unit_name}
           searchable
-          data={units.map(unit => ({ value: unit.unit_id.toString(), label: unit.unit_id }))}
-          {...form.getInputProps('id')}
+          data={units.map((unit) => ({
+            value: unit.unit_name, // Use unit_name as the value
+            label: unit.unit_name,
+          }))}
+          onChange={(value) => form.setFieldValue('unit_name', value || '')} // Update unit_name in form state
+          value={form.values.unit_name} // Bind the value to the form state
         />
-        {form.errors.id && <Text color="red">{form.errors.id}</Text>}
+        {/* {form.errors.unit_name && <Text color="red">{form.errors.unit_name}</Text>} */}
 
         {isLoading ? (
           <Loader size={24} />
         ) : (
           <>
             {submitError && <Text color="red">{submitError}</Text>}
-            {submitSuccess && <Text color="green">Unit deleted successfully!</Text>}
+            {/* {submitSuccess && <Text color="green">Unit deleted successfully!</Text>} */}
             <Button type="submit" mt="md" color="red">
               Delete Unit
             </Button>
