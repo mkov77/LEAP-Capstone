@@ -1049,7 +1049,7 @@ function BattlePage() {
                           color="gray"
                           position="bottom"
                           transitionProps={{ transition: 'fade-up', duration: 400 }}
-                          label={"Friendly Health Remaining: " + (friendlyHealth)}
+                          label={"Damage: " + Math.round(Number(totalFriendlyDamage)) + ", Remaining: " + friendlyHealth}
                         >
                           <Progress.Root size={30} classNames={{ label: classes.progressLabel }} m={10}>
                             <Progress.Section value={friendlyHealth} color={'#3d85c6'} key={'remaining'}>
@@ -1076,7 +1076,7 @@ function BattlePage() {
                           color="gray"
                           position="bottom"
                           transitionProps={{ transition: 'fade-up', duration: 400 }}
-                          label={"Enemy Health Remaining: " + enemyHealth}
+                          label={"Damage: " + Math.round(totalEnemyDamage) + ", Remaining: " + enemyHealth}
                         >
                           <Progress.Root size={30} classNames={{ label: classes.progressLabel }} m={10}>
                             <Progress.Section value={enemyHealth} color={'#c1432d'} key={'remaining'}>
