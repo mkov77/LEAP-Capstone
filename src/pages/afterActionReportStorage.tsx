@@ -129,43 +129,46 @@ export default function AAR() {
         </Table.Tr>
       );
     }
-    return tactics.map((tactic, index) => (
-      <React.Fragment key={index}>
-        <Table.Tr key={`tactic-${index}-awareness`}>
-          <Table.Td>Aware of OPFOR?</Table.Td>
-          <Table.Td>{Number(tactic.friendlyawareness) * 20}</Table.Td>
-          <Table.Td>{Number(tactic.enemyawareness) * 20}</Table.Td>
-        </Table.Tr>
-        <Table.Tr key={`tactic-${index}-logistics`}>
-          <Table.Td>Within Logistics Support Range?</Table.Td>
-          <Table.Td>{Number(tactic.friendlylogistics) * 25}</Table.Td>
-          <Table.Td>{Number(tactic.enemylogistics) * 25}</Table.Td>
-        </Table.Tr>
-        <Table.Tr key={`tactic-${index}-coverage`}>
-          <Table.Td>Within RPA/ISR Coverage?</Table.Td>
-          <Table.Td>{Number(tactic.friendlycoverage) * 10}</Table.Td>
-          <Table.Td>{Number(tactic.enemycoverage) * 10}</Table.Td>
-        </Table.Tr>
-        <Table.Tr key={`tactic-${index}-gps`}>
-          <Table.Td>Working GPS?</Table.Td>
-          <Table.Td>{Number(tactic.friendlygps) * 10}</Table.Td>
-          <Table.Td>{Number(tactic.enemygps) * 10}</Table.Td>
-        </Table.Tr>
-        <Table.Tr key={`tactic-${index}-comms`}>
-          <Table.Td>Within Communications Range?</Table.Td>
-          <Table.Td>{Number(tactic.friendlycomms) * 10}</Table.Td>
-          <Table.Td>{Number(tactic.enemycomms) * 10}</Table.Td>
-        </Table.Tr>
-        <Table.Tr key={`tactic-${index}-fire`}>
-          <Table.Td>Within Fire Support Range?</Table.Td>
-          <Table.Td>{Number(tactic.friendlyfire) * 15}</Table.Td>
-          <Table.Td>{Number(tactic.enemyfire) * 15}</Table.Td>
-        </Table.Tr>
-        <Table.Tr key={`tactic-${index}-pattern`}>
-          <Table.Td>Within Range of a Pattern Force?</Table.Td>
-          <Table.Td>{Number(tactic.friendlypattern) * 10}</Table.Td>
-          <Table.Td>{Number(tactic.enemypattern) * 10}</Table.Td>
-        </Table.Tr>
+ // Helper function to convert score to Yes/No
+ const scoreToYesNo = (score: number | undefined) => (score && score > 0 ? 'Yes' : 'No');
+
+ return tactics.map((tactic, index) => (
+   <React.Fragment key={index}>
+     <Table.Tr key={`tactic-${index}-awareness`}>
+       <Table.Td>Aware of OPFOR?</Table.Td>
+       <Table.Td>{scoreToYesNo(tactic.friendlyawareness)}</Table.Td>
+       <Table.Td>{scoreToYesNo(tactic.enemyawareness)}</Table.Td>
+     </Table.Tr>
+     <Table.Tr key={`tactic-${index}-logistics`}>
+       <Table.Td>Within Logistics Support Range?</Table.Td>
+       <Table.Td>{scoreToYesNo(tactic.friendlylogistics)}</Table.Td>
+       <Table.Td>{scoreToYesNo(tactic.enemylogistics)}</Table.Td>
+     </Table.Tr>
+     <Table.Tr key={`tactic-${index}-coverage`}>
+       <Table.Td>Within RPA/ISR Coverage?</Table.Td>
+       <Table.Td>{scoreToYesNo(tactic.friendlycoverage)}</Table.Td>
+       <Table.Td>{scoreToYesNo(tactic.enemycoverage)}</Table.Td>
+     </Table.Tr>
+     <Table.Tr key={`tactic-${index}-gps`}>
+       <Table.Td>Working GPS?</Table.Td>
+       <Table.Td>{scoreToYesNo(tactic.friendlygps)}</Table.Td>
+       <Table.Td>{scoreToYesNo(tactic.enemygps)}</Table.Td>
+     </Table.Tr>
+     <Table.Tr key={`tactic-${index}-comms`}>
+       <Table.Td>Within Communications Range?</Table.Td>
+       <Table.Td>{scoreToYesNo(tactic.friendlycomms)}</Table.Td>
+       <Table.Td>{scoreToYesNo(tactic.enemycomms)}</Table.Td>
+     </Table.Tr>
+     <Table.Tr key={`tactic-${index}-fire`}>
+       <Table.Td>Within Fire Support Range?</Table.Td>
+       <Table.Td>{scoreToYesNo(tactic.friendlyfire)}</Table.Td>
+       <Table.Td>{scoreToYesNo(tactic.enemyfire)}</Table.Td>
+     </Table.Tr>
+     <Table.Tr key={`tactic-${index}-pattern`}>
+       <Table.Td>Within Range of a Pattern Force?</Table.Td>
+       <Table.Td>{scoreToYesNo(tactic.friendlypattern)}</Table.Td>
+       <Table.Td>{scoreToYesNo(tactic.enemypattern)}</Table.Td>
+     </Table.Tr>
 
       </React.Fragment>
 
