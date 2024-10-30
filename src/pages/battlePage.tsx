@@ -151,6 +151,9 @@ function BattlePage() {
   // function for the button (either 'Next Round' or 'Done') that moves an engagement from one round to another based on health of both the enemy and friendly units
   const handleNextRound = (currentFriendlyHealth: number, currentEnemyHealth: number) => {
     if (currentEnemyHealth > 0 && currentFriendlyHealth > 0) {
+      // If we are continuing the engagement, save the health and reset the engagement GUI
+      updateUnitHealth(Number(unit_id), friendlyHealth);
+      updateUnitHealth(Number(enemyUnit?.unit_id), enemyHealth);
       setActive(0);
       setLoaded(false);
     } else {
