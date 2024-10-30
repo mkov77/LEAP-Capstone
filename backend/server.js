@@ -520,7 +520,7 @@ app.put('/api/units/health', async (req, res) => {
   const { id, newHealth } = req.body; // Ensure request body contains id and newHealth
 
   try {
-    const result = await pool.query('UPDATE units SET unit_health = $1 WHERE id = $2 RETURNING *', [
+    const result = await pool.query('UPDATE section_units SET unit_health = $1 WHERE id = $2 RETURNING *', [
       newHealth,
       id,
     ]);

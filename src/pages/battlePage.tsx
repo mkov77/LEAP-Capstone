@@ -126,6 +126,7 @@ function BattlePage() {
   // function to update unit health after each round of an engagement
   const updateUnitHealth = async (id: number, newHealth: number) => {
     const url = `http://localhost:5000/api/units/health`; // Corrected URL to point to the server running on port 5000
+    console.log("HERES WHAT WE ARE SENDING:", id, newHealth);
     const options = {
       method: 'PUT',
       headers: {
@@ -343,9 +344,9 @@ function BattlePage() {
     // Calculates the damage previously done to the friendly unit
     let prevFriendlyDamage
     if (b_enemy > 0) {
-      prevFriendlyDamage = Math.exp(-((r ** 2) / (2 * ((b_enemy*(calculateEnemyRealTimeScore()/100)) ** 2))));
-      console.log("!!!!! ", calculateRealTimeScore() )
-      console.log("!!!!! ", calculateEnemyRealTimeScore() )
+      prevFriendlyDamage = Math.exp(-((r ** 2) / (2 * ((b_enemy * (calculateEnemyRealTimeScore() / 100)) ** 2))));
+      console.log("!!!!! ", calculateRealTimeScore())
+      console.log("!!!!! ", calculateEnemyRealTimeScore())
     }
     else {
       prevFriendlyDamage = 0;
@@ -375,7 +376,7 @@ function BattlePage() {
     let prevEnemyDamage = 0;
     // Calculates the damage previously done to the enemy unit
     if (b > 0) {
-      prevEnemyDamage = Math.exp(-((r_enemy ** 2) / (2 * ((b*(calculateRealTimeScore()/100)) ** 2))));
+      prevEnemyDamage = Math.exp(-((r_enemy ** 2) / (2 * ((b * (calculateRealTimeScore() / 100)) ** 2))));
     }
     else {
       prevEnemyDamage = 0;
@@ -566,7 +567,7 @@ function BattlePage() {
         <Table.Td>{tactic.enemyScore !== 0 ? 'Yes' : 'No'}</Table.Td>
       </Table.Tr>
     ))
-    
+
   );
 
   // Sets value of readiness bar in inital display based on readiness level that is initialized
@@ -1052,14 +1053,31 @@ function BattlePage() {
                           label={"Damage: " + Math.round(Number(totalFriendlyDamage)) + ", Remaining: " + friendlyHealth}
                         >
                           <Progress.Root size={30} classNames={{ label: classes.progressLabel }} m={10}>
-                            <Progress.Section value={friendlyHealth} color={'#3d85c6'} key={'remaining'}>
-                              {totalFriendlyDamage === 0 ? 'No Damage' : ''}
-                            </Progress.Section>
+                            {friendlyHealth > 0 ? (
+                              <>
+                                <Progress.Section value={friendlyHealth} color={'#3d85c6'} key={'remaining'}>
+                                  {totalFriendlyDamage === 0 ? 'No Damage' : ''}
+                                </Progress.Section>
 
-                            <Progress.Section value={Number(totalFriendlyDamage)} color={'#2b5d8b'} key={'taken'}>
-                              {friendlyHealth <= 0 ? 'FATAL' : '-' + Number(totalFriendlyDamage).toFixed(0)}
-                            </Progress.Section>
+                                <Progress.Section value={Number(totalFriendlyDamage)} color={'#2b5d8b'} key={'taken'}>
+                                  {'-' + Number(totalFriendlyDamage).toFixed(0)}
+                                </Progress.Section>
+                              </>
+                            ) : (
+                              <div
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  height: '100%',
+                                  width: '100%',
+                                }}
+                              >
+                                FATAL
+                              </div>
+                            )}
                           </Progress.Root>
+
                         </Tooltip>
                       </Grid.Col>
 
@@ -1079,14 +1097,31 @@ function BattlePage() {
                           label={"Damage: " + Math.round(totalEnemyDamage) + ", Remaining: " + enemyHealth}
                         >
                           <Progress.Root size={30} classNames={{ label: classes.progressLabel }} m={10}>
-                            <Progress.Section value={enemyHealth} color={'#c1432d'} key={'remaining'}>
-                              {totalEnemyDamage === 0 ? 'No Damage' : ''}
-                            </Progress.Section>
+                            {enemyHealth > 0 ? (
+                              <>
+                                <Progress.Section value={enemyHealth} color={'#c1432d'} key={'remaining'}>
+                                  {totalEnemyDamage === 0 ? 'No Damage' : ''}
+                                </Progress.Section>
 
-                            <Progress.Section value={Number(totalEnemyDamage)} color={'#872f1f'} key={'taken'}>
-                              {enemyHealth <= 0 ? 'FATAL' : '-' + Number(totalEnemyDamage).toFixed(0)}
-                            </Progress.Section>
+                                <Progress.Section value={Number(totalEnemyDamage)} color={'#872f1f'} key={'taken'}>
+                                  {'-' + Number(totalEnemyDamage).toFixed(0)}
+                                </Progress.Section>
+                              </>
+                            ) : (
+                              <div
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  height: '100%',
+                                  width: '100%'
+                                }}
+                              >
+                                FATAL
+                              </div>
+                            )}
                           </Progress.Root>
+
                         </Tooltip>
                       </Grid.Col>
                     </Grid>
