@@ -370,7 +370,7 @@ export default function NodeEditModal({ isOpen, onClose, nodeID, is_friendly, us
                 unit_readiness: nodeValues.unit_readiness,
                 unit_skill: nodeValues.unit_skill,
                 is_friendly: nodeValues.is_friendly,
-                is_root: is_root,
+                is_root: nodeValues.root,
                 section_id: userSection
             });
 
