@@ -250,6 +250,9 @@ app.post('/api/engagements', async (req, res) => {
     isWin
   } = req.body;
 
+
+  console.log("Adding: ", req.body)
+
   try {
     const result = await pool.query(
       `INSERT INTO engagements 
@@ -518,9 +521,6 @@ app.put('/api/units/remove', async (req, res) => {
 
 app.put('/api/units/health', async (req, res) => {
   const { id, newHealth } = req.body; // Ensure request body contains id and newHealth
-
-  console.log("ID, NEWHEALTH: " + id + ' ' + newHealth)
-
   try {
     const result = await pool.query('UPDATE section_units SET unit_health = $1 WHERE unit_id = $2 RETURNING *', [
       newHealth,

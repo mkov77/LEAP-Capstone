@@ -126,7 +126,6 @@ function BattlePage() {
   // function to update unit health after each round of an engagement
   const updateUnitHealth = async (id: number, newHealth: number) => {
     const url = `http://localhost:5000/api/units/health`; // Corrected URL to point to the server running on port 5000
-    console.log("HERES WHAT WE ARE SENDING:", id, newHealth);
     const options = {
       method: 'PUT',
       headers: {
@@ -152,8 +151,6 @@ function BattlePage() {
   const handleNextRound = (currentFriendlyHealth: number, currentEnemyHealth: number) => {
     if (currentEnemyHealth > 0 && currentFriendlyHealth > 0) {
       // If we are continuing the engagement, save the health and reset the engagement GUI
-      updateUnitHealth(Number(unit_id), friendlyHealth);
-      updateUnitHealth(Number(enemyUnit?.unit_id), enemyHealth);
       setActive(0);
       setLoaded(false);
     } else {
@@ -476,6 +473,11 @@ function BattlePage() {
     } catch (error) {
       console.error('Error submitting data:', error);
     }
+
+    // Save health
+    console.log("Saving health: ", Math.round(friendlyHealth-friendlyDamage), " ", Math.round(enemyHealth-enemyDamage) )
+    updateUnitHealth(Number(unit_id), Math.round(friendlyHealth-friendlyDamage));
+    updateUnitHealth(Number(enemyUnit?.unit_id), Math.round(enemyHealth-enemyDamage));
 
   }; // End of finalize tactics
 
@@ -1064,7 +1066,7 @@ function BattlePage() {
                             {friendlyHealth > 0 ? (
                               <>
                                 <Progress.Section value={friendlyHealth} color={'#3d85c6'} key={'remaining'}>
-                                  {totalFriendlyDamage === 0 ? 'No Damage' : ''}
+                                  {(totalFriendlyDamage === 0 || !totalFriendlyDamage) ? 'No Damage' : ''}
                                 </Progress.Section>
 
                                 <Progress.Section value={Number(totalFriendlyDamage)} color={'#2b5d8b'} key={'taken'}>
