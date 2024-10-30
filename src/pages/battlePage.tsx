@@ -993,27 +993,32 @@ function BattlePage() {
 
                 {/* Finalize Score button that includes a animated progress bar to visually slow down the calculations to the cadet*/}
                 <Button
-                  className={classes.button}
-                  onClick={() => {
-                    if (!interval.active) {
-                      interval.start();
-                    }
-                    finalizeTactics();
-                    console.log("total friendly damage: ", totalFriendlyDamage);
-                  }}
-                  color={theme.primaryColor}
-                >
-                  <div className={classes.label}>    {progress !== 0 ? 'Calculating Scores...' : loaded ? 'Complete' : 'Finalize Tactics'}</div>
-                  {progress !== 0 && (
-                    <Progress
-                      style={{ height: '100px', width: '200px' }}
-                      value={progress}
-                      className={classes.progress}
-                      color={rgba(theme.colors.blue[2], 0.35)}
-                      radius="0px"
-                    />
-                  )}
-                </Button>
+  className={classes.button}
+  onClick={() => {
+    if (!interval.active) {
+      interval.start();
+    }
+    finalizeTactics();
+    console.log("total friendly damage: ", totalFriendlyDamage);
+  }}
+  color={theme.primaryColor}
+  disabled={progress !== 0} // Disable the button during loading
+>
+  <div className={classes.label}>
+    {progress !== 0 ? 'Calculating Scores...' : loaded ? 'Complete' : 'Finalize Tactics'}
+  </div>
+
+  {progress !== 0 && (
+    <Progress
+      style={{ height: '100px', width: '200px' }}
+      value={progress}
+      className={classes.progress}
+      color={rgba(theme.colors.blue[2], 0.35)}
+      radius="0px"
+    />
+  )}
+</Button>
+
               </Group>
             </div>
           </Stepper.Step>
