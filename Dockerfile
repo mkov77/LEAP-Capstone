@@ -1,21 +1,32 @@
-# Use a Node.js base image
-FROM node:18
+# Stage 1: Build
+FROM node:18-alpine AS build
 
 # Set the working directory
 WORKDIR /app
 
-# Copy the frontend package.json and package-lock.json
+# Copy the package.json and package-lock.json files
 COPY package*.json ./
 
-# Install frontend dependencies
+# Install only the dependencies required for building
 RUN npm install
 
-# Copy the rest of the frontend files
+# Copy the rest of the source files
 COPY . .
 
 # Build the frontend
 RUN npm run build
 
-# Serve the frontend with a simple server
+# Stage 2: Production (only includes the built files)
+FROM node:18-alpine
+
+# Install a simple HTTP server to serve static files
 RUN npm install -g serve
-CMD ["serve", "-s", "build"]
+
+# Copy only the build output from the previous stage
+COPY --from=build /app/build /app/build
+
+# Expose the port the app runs on
+EXPOSE 3000
+
+# Start the server with the build files
+CMD ["serve", "-s", "/app/build"]
