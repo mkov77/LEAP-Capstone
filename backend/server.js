@@ -10,8 +10,7 @@ app.use(express.json());
 
 const pool = new Pool({
   user: 'postgres',
-  // This changes between 'postgres' for docker and 'localhost' for non-containerized
-  host: 'localhost',
+  host: 'postgres', // This changes between 'postgres' for docker and 'localhost' for non-containerized
   database: 'LEAP',
   password: 'admin',
   port: 5432,

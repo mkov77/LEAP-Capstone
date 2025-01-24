@@ -61,7 +61,7 @@ function BattlePage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get<Unit[]>('http://localhost:5000/api/sectionunits/sectionSort', {
+        const response = await axios.get<Unit[]>(`${process.env.REACT_APP_BACKEND_URL}/api/sectionunits/sectionSort`, {
           params: {
             sectionid: userSection  // Pass userSection as a query parameter
           }
@@ -78,7 +78,7 @@ function BattlePage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get<Unit[]>('http://localhost:5000/api/sectionunits/enemyUnits', {
+        const response = await axios.get<Unit[]>(`${process.env.REACT_APP_BACKEND_URL}/api/sectionunits/enemyUnits`, {
           params: {
             sectionid: userSection  // Pass userSection as a query parameter
           }
@@ -96,7 +96,7 @@ function BattlePage() {
   useEffect(() => {
     const fetchUnitTactics = async () => {
       try {
-        const response = await axios.get<UnitTactics>(`http://localhost:5000/api/unitTactics/${enemyUnit?.unit_id}`);
+        const response = await axios.get<UnitTactics>(`${process.env.REACT_APP_BACKEND_URL}/api/unitTactics/${enemyUnit?.unit_id}`);
         setUnitTactics(response.data);
       } catch (error) {
         console.error('Error fetching unit tactics:', error);
@@ -125,7 +125,7 @@ function BattlePage() {
 
   // function to update unit health after each round of an engagement
   const updateUnitHealth = async (id: number, newHealth: number) => {
-    const url = `http://localhost:5000/api/units/health`; // Corrected URL to point to the server running on port 5000
+    const url = `${process.env.REACT_APP_BACKEND_URL}/api/units/health`; // Corrected URL to point to the server running on port 5000
     const options = {
       method: 'PUT',
       headers: {
@@ -439,7 +439,7 @@ function BattlePage() {
     // Submit answers to backend
     try {
       // Submit engagement data
-      const engagementResponse = await fetch('http://localhost:5000/api/engagements', {
+      const engagementResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/engagements`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -455,7 +455,7 @@ function BattlePage() {
       console.log('Engagement created:', engagementResult);
 
       // Submit tactics data
-      const tacticsResponse = await fetch('http://localhost:5000/api/tactics', {
+      const tacticsResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/tactics`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

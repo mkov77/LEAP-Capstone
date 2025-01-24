@@ -21,7 +21,7 @@ export default function DeleteConfirmationModal({open, sectionId, onClose, onDel
     try {
       console.log("Attempting to delete section :)")
       // Send delete request to the backend
-      await axios.delete(`http://localhost:5000/api/sections/${sectionId}`);
+      await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/sections/${sectionId}`);
       
       onDeleteSuccess();
       onClose(); // Close the modal on success

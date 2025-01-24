@@ -199,10 +199,10 @@ function Hierarchy({ is_friendly, hierarchyRefresh, xCoord, yCoord }: HierarchyP
       console.log('Fetching section units for section:', userSection);
   
       const [unitResponse, childrenResponse] = await Promise.all([
-        axios.get<Unit[]>(`http://localhost:5000/api/units/sectionNullandAllianceSort`, { 
+        axios.get<Unit[]>(`${process.env.REACT_APP_BACKEND_URL}/api/units/sectionNullandAllianceSort`, { 
           params: { sectionid: userSection, isFriendly: is_friendly } 
         }),
-        axios.get<{ parent_id: number; child_id: number }[]>(`http://localhost:5000/api/units/children`)
+        axios.get<{ parent_id: number; child_id: number }[]>(`${process.env.REACT_APP_BACKEND_URL}/api/units/children`)
       ]);
   
       const normalizedUnits = unitResponse.data.map(unit => ({
@@ -214,7 +214,7 @@ function Hierarchy({ is_friendly, hierarchyRefresh, xCoord, yCoord }: HierarchyP
   
       // Now fetch children for each unit based on unit_id (parent_id)
       const allChildrenPromises = normalizedUnits.map(unit => 
-        axios.get<{ parent_id: number; child_id: number }[]>(`http://localhost:5000/api/units/children`, {
+        axios.get<{ parent_id: number; child_id: number }[]>(`${process.env.REACT_APP_BACKEND_URL}/api/units/children`, {
           params: { parent_id: unit.unit_id }
         })
       );
@@ -243,7 +243,7 @@ function Hierarchy({ is_friendly, hierarchyRefresh, xCoord, yCoord }: HierarchyP
 
   const fetchPresetUnits = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/preset_units');
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/preset_units`);
 
       const normalizedData = response.data.map((unit: any) => ({
         unit_name: unit.unit_name,

@@ -41,7 +41,7 @@ function CarouselC() {
     const fetchData = async () => {
       try {
         console.log('Fetching data for section:', userSection);
-        const response = await axios.get<Unit[]>('http://localhost:5000/api/sectionunits/sectionSort', {
+        const response = await axios.get<Unit[]>(`${process.env.REACT_APP_BACKEND_URL}/api/sectionunits/sectionSort`, {
           params: {
             sectionid: userSection  // Pass userSection as a query parameter
           }

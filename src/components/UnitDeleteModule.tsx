@@ -32,7 +32,7 @@ export default function UnitDeleteModule({ isOpen, onClose }: UnitDeleteProps) {
       const fetchUnits = async () => {
         try {
           setIsLoading(true);
-          const response = await axios.get<Unit[]>('http://localhost:5000/api/presetunits');
+          const response = await axios.get<Unit[]>(`${process.env.REACT_APP_BACKEND_URL}/api/presetunits`);
           console.log('API Response:', response.data);
           setUnits(response.data);
           setIsLoading(false);
@@ -54,7 +54,7 @@ export default function UnitDeleteModule({ isOpen, onClose }: UnitDeleteProps) {
       setSubmitSuccess(false);
 
       // Send delete request with the unit_name
-      await axios.delete(`http://localhost:5000/api/units/${values.unit_name}`);
+      await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/units/${values.unit_name}`);
 
       setSubmitSuccess(true);
       setIsLoading(false);

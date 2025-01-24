@@ -69,7 +69,7 @@ export default function LandingPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get<Section[]>('http://localhost:5000/api/sections');
+        const response = await axios.get<Section[]>(`${process.env.REACT_APP_BACKEND_URL}/api/sections`);
         setSections(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
