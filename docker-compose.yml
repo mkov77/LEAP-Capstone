@@ -9,6 +9,7 @@ services:
       POSTGRES_DB: LEAP
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./LEAP_FALL24_DB_1.sql:/docker-entrypoint-initdb.d/LEAP_FALL24_DB_1.sql:ro # Restore database on init
     ports:
       - "5433:5432"
 

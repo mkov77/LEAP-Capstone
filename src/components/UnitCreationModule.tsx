@@ -66,7 +66,7 @@ export default function UnitCreationModule({ isOpen, onClose }: UnitCreationProp
     console.log(values.unitMobility)
 
     try {
-      const response = await axios.post('http://localhost:5000/api/newpresetunit', {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/newpresetunit`, {
         unit_name: values.unitName,
         unit_type: values.unitType,
         unit_role: values.unitRole,
@@ -81,7 +81,7 @@ export default function UnitCreationModule({ isOpen, onClose }: UnitCreationProp
       console.log('Form submitted with values:', response.data);
 
       // Second API call: Submit tactics data
-      const tacticsResponse = await axios.post('http://localhost:5000/api/newpresetunit/tactics', {
+      const tacticsResponse = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/newpresetunit/tactics`, {
         unit_name: values.unitName, // You may want to use the unit ID from unitResponse if available
         awareness: segmentValues.awareness,
         logistics: segmentValues.logistics,

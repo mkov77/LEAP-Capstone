@@ -84,7 +84,7 @@ function AdminPage() {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get<Section[]>('http://localhost:5000/api/sections');
+      const response = await axios.get<Section[]>(`${process.env.REACT_APP_BACKEND_URL}/api/sections`);
       setSections(response.data);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -109,7 +109,7 @@ function AdminPage() {
     if (newSectionName.trim()) {
       try {
         // Make POST request to backend
-        const response = await axios.post('http://localhost:5000/api/sections', {
+        const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/sections`, {
           sectionid: newSectionName.trim(),
           isonline: false, // Default to offline
         });
@@ -150,7 +150,7 @@ function AdminPage() {
   //     if (!confirmDelete) return;
 
   //     // Send delete request to the backend
-  //     await axios.delete(`http://localhost:5000/api/sections/${sectionId}`);
+  //     await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/sections/${sectionId}`);
 
   //     // Success: Update the sections state by removing the deleted section
   //     setSections((prevSections) =>

@@ -46,7 +46,7 @@ function SectionControls() {
     const fetchSectionData = async () => {
       try {
         console.log("Fetching section data...");
-        const response = await fetch(`http://localhost:5000/api/sections/${sectionId}/status`);
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/sections/${sectionId}/status`);
         if (response.ok) {
           const sectionData = await response.json();
           setSectionOnline(sectionData.isonline);
@@ -72,7 +72,7 @@ function SectionControls() {
 
   const toggleSectionOnline = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/sections/${sectionId}`, {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/sections/${sectionId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

@@ -4,6 +4,7 @@ release-build/MyReactApp-win32-x64/resources/app/LEAP_images.tar
 
 *.exe
 *.tar
+.env
 
 # dependencies
 /node_modules
