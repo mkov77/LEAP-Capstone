@@ -256,8 +256,6 @@ function BattlePage() {
   const nextStep = () => setActive((current) => (current < 6 ? current + 1 : current));
   const prevStep = () => setActive((current) => (current > 0 ? current - 1 : current));
 
-
-
   // Update user answers
   const [question1, setQuestion1] = useState('Yes')
   const [question2, setQuestion2] = useState('Yes')
@@ -362,7 +360,6 @@ function BattlePage() {
       friendlyDamage = Number(friendlyHealth);
     }
     console.log("Second friendly damage: ", friendlyDamage)
-
 
     // Calculates the overall damage to the friendly unit
     setTotalFriendlyDamage(friendlyDamage);
@@ -475,9 +472,9 @@ function BattlePage() {
     }
 
     // Save health
-    console.log("Saving health: ", Math.round(friendlyHealth-friendlyDamage), " ", Math.round(enemyHealth-enemyDamage) )
-    updateUnitHealth(Number(unit_id), Math.round(friendlyHealth-friendlyDamage));
-    updateUnitHealth(Number(enemyUnit?.unit_id), Math.round(enemyHealth-enemyDamage));
+    console.log("Saving health: ", Math.round(friendlyHealth - friendlyDamage), " ", Math.round(enemyHealth - enemyDamage))
+    updateUnitHealth(Number(unit_id), Math.round(friendlyHealth - friendlyDamage));
+    updateUnitHealth(Number(enemyUnit?.unit_id), Math.round(enemyHealth - enemyDamage));
 
   }; // End of finalize tactics
 
@@ -707,7 +704,6 @@ function BattlePage() {
   //   return 'Round Summary';
   // };
 
-
   // Checks that there is a unit to run an engagement
   const unitNull = () => {
     if (unit_id !== undefined) {
@@ -764,7 +760,6 @@ function BattlePage() {
                     )}
                   </Card>
                 </Grid.Col>
-
 
                 {/* Displays a card that contains pertinent information about the selected enemy unit */}
                 <Grid.Col span={4}>
@@ -998,32 +993,31 @@ function BattlePage() {
 
                 {/* Finalize Score button that includes a animated progress bar to visually slow down the calculations to the cadet*/}
                 <Button
-  className={classes.button}
-  onClick={() => {
-    if (!interval.active) {
-      interval.start();
-    }
-    finalizeTactics();
-    console.log("total friendly damage: ", totalFriendlyDamage);
-  }}
-  color={theme.primaryColor}
-  disabled={progress !== 0} // Disable the button during loading
->
-  <div className={classes.label}>
-    {progress !== 0 ? 'Calculating Scores...' : loaded ? 'Complete' : 'Finalize Tactics'}
-  </div>
+                  className={classes.button}
+                  onClick={() => {
+                    if (!interval.active) {
+                      interval.start();
+                    }
+                    finalizeTactics();
+                    console.log("total friendly damage: ", totalFriendlyDamage);
+                  }}
+                  color={theme.primaryColor}
+                  disabled={progress !== 0} // Disable the button during loading
+                >
+                  <div className={classes.label}>
+                    {progress !== 0 ? 'Calculating Scores...' : loaded ? 'Complete' : 'Finalize Tactics'}
+                  </div>
 
-  {progress !== 0 && (
-    <Progress
-      style={{ height: '100px', width: '200px' }}
-      value={progress}
-      className={classes.progress}
-      color={rgba(theme.colors.blue[2], 0.35)}
-      radius="0px"
-    />
-  )}
-</Button>
-
+                  {progress !== 0 && (
+                    <Progress
+                      style={{ height: '100px', width: '200px' }}
+                      value={progress}
+                      className={classes.progress}
+                      color={rgba(theme.colors.blue[2], 0.35)}
+                      radius="0px"
+                    />
+                  )}
+                </Button>
               </Group>
             </div>
           </Stepper.Step>
@@ -1137,7 +1131,6 @@ function BattlePage() {
                     </Grid>
                   </Card.Section>
 
-
                   <Card.Section withBorder inheritPadding py="xs">
                     <Container>
                       <Text size="xl" fw={700}>Tactics</Text>
@@ -1155,7 +1148,6 @@ function BattlePage() {
                       <Table.Tbody>{tacticToRow(answers)}</Table.Tbody>
                     </Table>
                   </Card.Section>
-
 
                   <Card.Section withBorder inheritPadding py="xs">
 
@@ -1261,46 +1253,7 @@ function BattlePage() {
                       </Group>
                     </Grid>
 
-                    {/* Displays a progress bar with the total score (overall characteristics and tactics) for the friendly unit */}
-                    {/* <div style={{ display: 'flex', justifyContent: 'space-between', padding: '30px' }}>
-                      <Progress.Root style={{ width: '200px', height: '25px' }}>
-                        <Tooltip
-                          position="top"
-                          transitionProps={{ transition: 'fade-up', duration: 300 }}
-                          label="Overall Score Out of 100"
-                        >
-                          <Progress.Section
-                            className={classes.progressSection}
-                            value={Math.round((baseValue * .70) + (Number(realTimeScore) * .30))}
-                            color="#4e87c1">
-                            {Math.round((baseValue * .70) + (Number(realTimeScore) * .30))}
-                          </Progress.Section>
-                        </Tooltip>
-                      </Progress.Root> */}
-
-                    {/* Displays a progress bar with the total score (overall characteristics and tactics) for the enemy unit */}
-                    {/* <Progress.Root style={{ width: '200px', height: '25px' }}>
-                        <Tooltip
-                          position="top"
-                          transitionProps={{ transition: 'fade-up', duration: 300 }}
-                          label="Overall Score Out of 100"
-                        >
-                          <Progress.Section
-                            className={classes.progressSection}
-                            value={Math.round((enemyBaseValue * .70) + (Number(realTimeScore) * .30))}
-                            color="#bd3058">
-                            {Math.round((enemyBaseValue * .70) + (Number(realTimeScore) * .30))}
-                          </Progress.Section>
-                        </Tooltip>
-                      </Progress.Root>
-                    </div> */}
-
                   </Card.Section>
-
-
-
-
-
                 </Card>
               </Group>
 
