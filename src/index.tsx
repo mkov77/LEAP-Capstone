@@ -15,6 +15,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { UserRoleProvider } from './context/UserContext';
 import { UnitProvider } from './context/UnitContext';
 import AAR from './pages/afterActionReportStorage';
+import Engagement from './engagements/engagement';
 const theme = createTheme({
   /** Put your mantine theme override here */
 });
@@ -34,7 +35,7 @@ root.render(
               <Route path="/observerPage/:sectionId" element={<ObserverPage />} /> {/* Update route */}
               <Route path="/admin" element={<AdminPage />} />
               <Route path="/sectionControls/:sectionId" element={<SectionControls />} /> {/* New route */}
-              <Route path="/battlePage" element={<BattlePage />} />
+              <Route path="/engagement" element={<BattlePage />} />
               <Route path="/AAR/:sectionId" element={<AAR />} />
             </Routes>
           </Router>

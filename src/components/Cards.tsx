@@ -71,7 +71,7 @@ function CardC({ unit }: CardProps) {
           onClick={() => {
             if (unit_health > 0) {
               if (selectedUnit === unit_id) {
-                navigate('/battlePage');
+                navigate('/engagement');
               } else {
                 setSelectedUnit(unit_id);
               }

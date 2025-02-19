@@ -168,7 +168,7 @@ function App() {
                   <Button
                     disabled={!selectedUnit || selectedUnit.unit_health <= 0}
                     size='compact-xl'
-                    onClick={() => navigate(`/battlePage`)}
+                    onClick={() => navigate(`/engagement`)}
                     style={{ margin: '30px' }}
                   >
                     Select for Engagement
