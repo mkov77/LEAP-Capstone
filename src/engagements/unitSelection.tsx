@@ -108,14 +108,16 @@ const UnitSelection: React.FC<UnitSelectionProps> = ({
       </Grid.Col>
 
       {/* Action Buttons */}
-      <Group justify="center" mt="xl">
-        {enemyUnit && !inEngagement && (
-          <Button onClick={handleDeselectEnemy} color='red'>Deselect Enemy Unit</Button>
-        )}
-        <Button onClick={handleStartEngagement} disabled={!enemyUnit}>
-          {inEngagement ? 'Start Round' : 'Start Engagement'}
-        </Button>
-      </Group>
+      <Grid.Col span={8} style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+        <Group>
+          {enemyUnit && !inEngagement && (
+            <Button onClick={handleDeselectEnemy} color='red'>Deselect Enemy Unit</Button>
+          )}
+          <Button onClick={handleStartEngagement} disabled={!enemyUnit}>
+            {inEngagement ? 'Start Round' : 'Start Engagement'}
+          </Button>
+        </Group>
+      </Grid.Col>
     </Grid>
   );
 };
