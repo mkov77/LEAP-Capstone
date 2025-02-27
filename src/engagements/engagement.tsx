@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Stepper, Button, Text, Group, rem, Grid, SegmentedControl } from '@mantine/core';
-import { IconHeartbeat, IconSwords, IconNumber1Small, IconNumber2Small, IconNumber3Small } from '@tabler/icons-react';
+import { Stepper, Button, Text, Group, rem, Grid, SegmentedControl, Tooltip } from '@mantine/core';
+import { IconHeartbeat, IconSwords, IconNumber1Small, IconNumber2Small, IconNumber3Small, IconInfoCircle } from '@tabler/icons-react';
 import { useUnitProvider } from '../context/UnitContext';
 import { useUserRole } from '../context/UserContext';
 import axios from 'axios';
@@ -125,7 +125,7 @@ function Engagement() {
   const [dr, setDr] = useState<number>(0); // Attacker Accuracy
   const [D, setD] = useState<number>(0); // Damage Inflicted
   const [finalEnemyHealth, setFinalEnemyHealth] = useState<number>(0); // Enemy Health after engagement
-  
+
 
   /**
    * useEffect #1:
@@ -239,66 +239,66 @@ function Engagement() {
   // This the the engagement math
   const handleEngagement = () => {
     if (!friendlyUnit || !enemyUnit || !enemyEngagementData) return;
-  
+
     // Step 1: Calculate r from detection phase
     let baseR = Math.sqrt(friendlyUnit.A / Math.PI);
-  
+
     // Step 2: Apply modifiers (CAS, GPS jamming)
     let modifiedR = baseR;
     if (hasCAS === 'Yes') modifiedR -= 2;
     if (gpsJammed === 'Yes') modifiedR += 3;
-  
+
     // Ensure modifiedR never goes below 1
     modifiedR = Math.max(modifiedR, 1);
-  
+
     // Step 3: Compute Probability of Hit (Ph)
     const PhValue = 1 - Math.exp(-Math.pow(modifiedR, 2) / (2 * Math.pow(friendlyUnit.sigma, 2)));
     setPh(PhValue);
-  
+
     // Damage calculation will be done later after accuracy phase
     setD(0);
     setFinalEnemyHealth(enemyEngagementData.Fi);
-  
+
     console.log(`Engagement Results:
       Ph: ${PhValue},
       Damage: ${0}, // Placeholder until accuracy phase runs
       Enemy Health: ${enemyEngagementData.Fi}`);
   };
-  
-  
+
+
   // This is the accuracy math based on user selected math
   const handleAccuracyCalculation = () => {
     if (!friendlyUnit || !enemyEngagementData) return;
-  
+
     // Step 4: Adjust r based on accuracy phase inputs
     let accuracyR = Math.sqrt(friendlyUnit.A / Math.PI);
     accuracyR += maneuverableTarget === 'Yes' ? 1 : -1;
     accuracyR += targetInSOI === 'Yes' ? -1 : 1;
-  
+
     // Step 5: Compute Attacker Accuracy (d(r))
     const drValue = Math.exp(-Math.pow(accuracyR, 2) / (2 * Math.pow(friendlyUnit.b, 2)));
     setDr(drValue)
-  
+
     // Step 6: Compute Damage Inflicted (D)
     const DValue = Math.min(friendlyUnit.d_mi * Ph * drValue, Math.max(enemyEngagementData.Fi, 0)); // Prevents overkill
     setD(DValue);
-  
+
     // Step 7: Compute Final Health (Fn) and ensure no negative health
     const newEnemyHealth = Math.max(0, enemyEngagementData.Fi - DValue);
     setFinalEnemyHealth(newEnemyHealth);
-  
+
     // Update enemy engagement data
     setEnemyEngagementData((prev) => ({
       ...prev!,
       Fn: newEnemyHealth,
     }));
-  
+
     console.log(`Accuracy Phase Results:
       d(r): ${drValue},
       Damage: ${DValue},
       Enemy Health After Accuracy: ${newEnemyHealth}`);
   };
-    
+
 
   // Render the step-based UI
   return (
@@ -338,7 +338,11 @@ function Engagement() {
           </Text>
 
           {/* User answers whether they've conducted ISR */}
-          <Text mt="md">Did you conduct ISR prior to moving land forces?</Text>
+          <Group>
+            <Text mt="md">Did you conduct ISR prior to moving land forces?</Text>
+            <Tooltip label="The correct answer is yes"><IconInfoCircle /></Tooltip>
+          </Group>
+
           <SegmentedControl
             size="xl"
             radius="xs"
@@ -488,7 +492,7 @@ function Engagement() {
                 <Text>Accuracy Factor (σ): {friendlyUnit.sigma}</Text>
                 <Text>Probability of Hit (Ph): {friendlyUnit.Ph.toFixed(4)}</Text>
                 <Text>Range (b): {friendlyUnit.b}</Text>
-                <Text>Accuracy Result (d_r): {dr.toFixed(4)}</Text> 
+                <Text>Accuracy Result (d_r): {dr.toFixed(4)}</Text>
                 <Text>Max Damage Inflicted (d_mi): {friendlyUnit.d_mi}</Text>
                 <Text>Final Damage Inflicted (D): {friendlyUnit.D.toFixed(2)}</Text>
                 <Text>Initial Health (Fi): {friendlyUnit.Fi}</Text>
