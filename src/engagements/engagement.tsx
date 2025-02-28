@@ -125,6 +125,7 @@ function Engagement() {
   const [dr, setDr] = useState<number>(0); // Attacker Accuracy
   const [D, setD] = useState<number>(0); // Damage Inflicted
   const [finalEnemyHealth, setFinalEnemyHealth] = useState<number>(0); // Enemy Health after engagement
+  const [engagementCalculated, setEngagementCalculated] = useState(false);
 
 
   /**
@@ -219,23 +220,21 @@ function Engagement() {
    * After updating, we move on to the next step.
    */
   const handleNextStep = () => {
-    // We only apply these changes once, at the end of Step 1 (Detection)
-    if (active === 1 && friendlyUnit) {
-      let newT = friendlyUnit.t;
-      if (isrConducted === 'Yes') newT += 3;
-      if (isrConducted === 'No') newT -= 3;
-
-      if (commsDegraded === 'No') newT += 4;
-      if (commsDegraded === 'Yes') newT -= 4;
-
-      // Julia changed to make never go neg 
-      newT = Math.max(newT, 1);  // Minimum value of 1 instead of allowing negatives
-
-      setFriendlyUnit({ ...friendlyUnit, t: newT });
+    if (active === 1) {
+      setEngagementCalculated(false); // Reset engagement calculations when leaving detection phase
     }
-    // Moves to the next step or caps at the final step
+
+    // Engagement should only be calculated in Step 4 (Summary)
+    if (active === 3 && friendlyUnit && enemyUnit && enemyEngagementData && !engagementCalculated) {
+      handleEngagement();
+      handleAccuracyCalculation();
+      setEngagementCalculated(true); // Prevent multiple re-calculations
+    }
+
     setActive((current) => Math.min(4, current + 1));
   };
+
+
   // This the the engagement math
   const handleEngagement = () => {
     if (!friendlyUnit || !enemyUnit || !enemyEngagementData) return;
@@ -304,7 +303,14 @@ function Engagement() {
   return (
     <>
       {/* Stepper: controls the multi-phase flow */}
-      <Stepper active={active} onStepClick={setActive}>
+      <Stepper active={active} onStepClick={(step) => {
+        // Prevent going back once at Step 4 (Summary)
+        if (active < 4 && step < 4 && step <= active) {
+          setActive(step);
+        }
+      }}>
+
+
         {/* STEP 0: Round Setup */}
         <Stepper.Step
           allowStepSelect={false}
@@ -411,20 +417,9 @@ function Engagement() {
             onChange={(val) => setGpsJammed(val as 'Yes' | 'No')}
           />
 
-          {/* Button to run engagement calculations */}
-          <Button mt="md" fullWidth onClick={handleEngagement}>
-            Calculate Engagement
-          </Button>
 
           {/* Display Engagement Results */}
-          {enemyEngagementData && (
-            <div>
-              <Text mt="md">Probability of Hit (P<sub>h</sub>): {Ph.toFixed(4)}</Text>
-              <Text>Damage Inflicted (D): {D.toFixed(2)}</Text>
-              <Text>Enemy Health Before: {enemyEngagementData.Fi}</Text>
-              <Text>Enemy Health After: {finalEnemyHealth.toFixed(2)}</Text>
-            </div>
-          )}
+    
         </Stepper.Step>
 
         {/* STEP 3: Accuracy Phase */}
@@ -457,19 +452,6 @@ function Engagement() {
             onChange={(val) => setTargetInSOI(val as 'Yes' | 'No')}
           />
 
-          {/* Button to trigger accuracy calculations */}
-          <Button mt="md" fullWidth onClick={handleAccuracyCalculation} disabled={Ph === 0}>
-            Calculate Accuracy
-          </Button>
-
-
-          {/* Display Accuracy Results */}
-          {dr > 0 && (
-            <div>
-              <Text>Damage Inflicted (D): {D.toFixed(2)}</Text>
-              <Text>Enemy Health After: {finalEnemyHealth.toFixed(2)}</Text>
-            </div>
-          )}
         </Stepper.Step>
 
 
@@ -478,9 +460,11 @@ function Engagement() {
           allowStepSelect={false}
           icon={<IconHeartbeat stroke={1.5} style={{ width: rem(35), height: rem(35) }} />}
         >
-          <Text>Here are the final results!!</Text>
+          <Text size="xl">Final Engagement Results</Text>
+
           <Grid gutter="xl">
-            {/* Friendly Unit Properties */}
+
+            {/* Friendly Unit Summary */}
             {friendlyUnit && (
               <Grid.Col span={6}>
                 <Text size="xl">Friendly Unit Properties</Text>
@@ -490,17 +474,17 @@ function Engagement() {
                 <Text>Probability of Detection (P): {friendlyUnit.P.toFixed(4)}</Text>
                 <Text>Radius of Attack (r): {friendlyUnit.r}</Text>
                 <Text>Accuracy Factor (σ): {friendlyUnit.sigma}</Text>
-                <Text>Probability of Hit (Ph): {friendlyUnit.Ph.toFixed(4)}</Text>
+                <Text>Probability of Hit (Ph): {Ph.toFixed(4)}</Text>
                 <Text>Range (b): {friendlyUnit.b}</Text>
-                <Text>Accuracy Result (d_r): {dr.toFixed(4)}</Text>
+                <Text>Attacker Accuracy (d_r): {dr.toFixed(4)}</Text>
                 <Text>Max Damage Inflicted (d_mi): {friendlyUnit.d_mi}</Text>
-                <Text>Final Damage Inflicted (D): {friendlyUnit.D.toFixed(2)}</Text>
+                <Text>Final Damage Inflicted (D): {D.toFixed(2)}</Text>
                 <Text>Initial Health (Fi): {friendlyUnit.Fi}</Text>
-                <Text>Final Health (Fn): {friendlyUnit.Fn.toFixed(2)}</Text>
+                <Text>Final Health (Fn): {finalEnemyHealth.toFixed(2)}</Text>
               </Grid.Col>
             )}
 
-            {/* Enemy Unit Properties */}
+            {/* Enemy Unit Summary */}
             {enemyEngagementData && (
               <Grid.Col span={6}>
                 <Text size="xl">Enemy Unit Properties</Text>
@@ -510,27 +494,29 @@ function Engagement() {
                 <Text>Probability of Detection (P): {enemyEngagementData.P.toFixed(4)}</Text>
                 <Text>Radius of Attack (r): {enemyEngagementData.r}</Text>
                 <Text>Accuracy Factor (σ): {enemyEngagementData.sigma}</Text>
-                <Text>Probability of Hit (Ph): {enemyEngagementData.Ph.toFixed(4)}</Text>
+                <Text>Probability of Hit (Ph): {Ph.toFixed(4)}</Text>
                 <Text>Range (b): {enemyEngagementData.b}</Text>
-                <Text>Accuracy Result (d_r): {enemyEngagementData.d_r.toFixed(4)}</Text>
+                <Text>Attacker Accuracy (d_r): {enemyEngagementData.d_r.toFixed(4)}</Text>
                 <Text>Max Damage Inflicted (d_mi): {enemyEngagementData.d_mi}</Text>
-                <Text>Final Damage Inflicted (D): {enemyEngagementData.D.toFixed(2)}</Text>
+                <Text>Final Damage Inflicted (D): {D.toFixed(2)}</Text>
                 <Text>Initial Health (Fi): {enemyEngagementData.Fi}</Text>
-                <Text>Final Health (Fn): {enemyEngagementData.Fn.toFixed(2)}</Text>
+                <Text>Final Health (Fn): {finalEnemyHealth.toFixed(2)}</Text>
               </Grid.Col>
             )}
           </Grid>
         </Stepper.Step>
+
+
       </Stepper>
 
       {/* Navigation Buttons */}
       <Group justify="center" mt="xl">
-        {/* 'Back' button decrements the step */}
-        <Button variant="default" onClick={() => setActive((current) => Math.max(0, current - 1))}>
-          Back
-        </Button>
-        {/* 'Next' button calls handleNextStep for any final logic before moving to the next step */}
-        <Button onClick={handleNextStep}>Next</Button>
+        {active < 4 && (
+          <Button variant="default" onClick={() => setActive((current) => Math.max(0, current - 1))}>
+            Back
+          </Button>
+        )}
+        {active < 4 && <Button onClick={handleNextStep}>Next</Button>}
       </Group>
     </>
   );
