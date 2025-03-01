@@ -419,7 +419,7 @@ function Engagement() {
 
 
           {/* Display Engagement Results */}
-    
+
         </Stepper.Step>
 
         {/* STEP 3: Accuracy Phase */}
@@ -510,14 +510,22 @@ function Engagement() {
       </Stepper>
 
       {/* Navigation Buttons */}
-      <Group justify="center" mt="xl">
-        {active < 4 && (
-          <Button variant="default" onClick={() => setActive((current) => Math.max(0, current - 1))}>
-            Back
+      {active > 0 && active < 4 && (
+        <Group justify="center" mt="xl">
+          {/* Only show "Back" button if NOT in Detection Phase (Step 1) */}
+          {active !== 1 && (
+            <Button variant="default" onClick={() => setActive((current) => Math.max(1, current - 1))}>
+              Back
+            </Button>
+          )}
+
+          {/* Change "Next" to "Finalize" on Accuracy Phase (Step 3) */}
+          <Button onClick={handleNextStep} color={active === 3 ? "green" : undefined}>
+            {active === 3 ? "Finalize" : "Next"}
           </Button>
-        )}
-        {active < 4 && <Button onClick={handleNextStep}>Next</Button>}
-      </Group>
+        </Group>
+      )}
+
     </>
   );
 }
