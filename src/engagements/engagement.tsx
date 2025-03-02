@@ -5,6 +5,7 @@ import { useUnitProvider } from '../context/UnitContext';
 import { useUserRole } from '../context/UserContext';
 import axios from 'axios';
 import UnitSelection from './unitSelection';
+import { Unit } from '../types/unit'
 
 /**
  * EngagementData:
@@ -25,19 +26,6 @@ interface EngagementData {
   D: number;     // Final damage inflicted
   Fi: number;    // Initial health
   Fn: number;    // Final health after engagement
-}
-
-/**
- * Unit:
- * Represents a single unit, which can be a friendly or enemy entity.
- */
-interface Unit {
-  unit_id: number;
-  unit_name: string;
-  unit_type: string;
-  unit_health: number;
-  unit_size: string;
-  unit_mobility: string;
 }
 
 /**
@@ -329,6 +317,7 @@ function Engagement() {
             handleDeselectEnemy={handleDeselectEnemy}
             handleStartEngagement={handleStartEngagement}
             inEngagement={inEngagement}
+            round = {1}
           />
         </Stepper.Step>
 
