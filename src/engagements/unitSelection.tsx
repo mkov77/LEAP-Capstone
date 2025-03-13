@@ -11,13 +11,12 @@ import {
   Group,
   Progress
 } from '@mantine/core';
-import getImageSRC from '../context/imageSrc';
 import { Unit } from '../types/unit';
+import getImageSRC from '../context/imageSrc';
 import classes from './unitSelection.module.css';
 
-// Props
 interface UnitSelectionProps {
-  friendlyUnit: Unit | null;      // The friendly unit is passed in from Engagement
+  friendlyUnit: Unit | null;
   enemyUnits: Unit[];
   enemyUnit: Unit | null;
   setEnemyUnit: (unit: Unit | null) => void;
@@ -28,9 +27,57 @@ interface UnitSelectionProps {
   round: number;
 }
 
-// Progress Bars for readiness, skill, and health
-const CustomProgressBarReadiness: React.FC<{ value: number }> = ({ value }) => {
+/* ----------------------------------------------
+   1) Convert readiness/skill strings to numeric
+   ---------------------------------------------- */
+function getReadinessProgress(unit_readiness: string | undefined): number {
+  switch (unit_readiness) {
+    // For "Force Readiness"
+    case 'Low':
+      return 25;
+    case 'Medium':
+      return 50;
+    case 'High':
+      return 75;
+
+    // If your table includes skill states in readiness, or if you typed "Untrained" by mistake:
+    case 'Untrained':
+      return 0;
+
+    // Fallback
+    default:
+      return 0;
+  }
+}
+
+function getForceSkill(unit_skill: string | undefined): number {
+  switch (unit_skill) {
+    case 'Untrained':
+      return 0;
+    case 'Basic':
+      return 33;  // your snippet used 33 for Basic
+    case 'Advanced':
+      return 66;  // 66 for Advanced
+    case 'Elite':
+      return 100;
+
+    // fallback
+    default:
+      return 0;
+  }
+}
+
+/* ----------------------------------------------
+   2) Custom Progress Bars 
+      - exactly as in your snippet with color
+      - 4 segments each
+   ---------------------------------------------- */
+
+// For READINESS
+const CustomProgressBarReadiness = ({ value }: { value: number }) => {
   let color = 'blue';
+
+  // color logic for readiness
   if (value === 0) {
     color = 'red';
   } else if (value <= 25) {
@@ -38,6 +85,32 @@ const CustomProgressBarReadiness: React.FC<{ value: number }> = ({ value }) => {
   } else if (value <= 50) {
     color = 'yellow';
   } else if (value <= 75) {
+    color = 'green';
+  } else {
+    color = 'green';
+  }
+
+  return (
+    <Group grow gap={5} mb="xs">
+      <Progress size="xl" color={color} value={value > 0 ? 100 : 0} transitionDuration={0} />
+      <Progress size="xl" color={color} value={value <= 25 ? 0 : 100} transitionDuration={0} />
+      <Progress size="xl" color={color} value={value <= 50 ? 0 : 100} transitionDuration={0} />
+    </Group>
+  );
+};
+
+// For SKILL
+const CustomProgressBarSkill = ({ value }: { value: number }) => {
+  let color = 'blue';
+
+  // color logic for skill
+  if (value === 0) {
+    color = 'red';
+  } else if (value <= 33) {
+    color = 'orange';
+  } else if (value < 66) {
+    color = 'yellow';
+  } else if (value < 100) {
     color = 'lime';
   } else {
     color = 'green';
@@ -46,34 +119,15 @@ const CustomProgressBarReadiness: React.FC<{ value: number }> = ({ value }) => {
   return (
     <Group grow gap={5} mb="xs">
       <Progress size="xl" color={color} value={value > 0 ? 100 : 0} transitionDuration={0} />
-      <Progress size="xl" color={color} value={value < 30 ? 0 : 100} transitionDuration={0} />
-      <Progress size="xl" color={color} value={value < 50 ? 0 : 100} transitionDuration={0} />
-      <Progress size="xl" color={color} value={value < 70 ? 0 : 100} transitionDuration={0} />
+      <Progress size="xl" color={color} value={value <= 33 ? 0 : 100} transitionDuration={0} />
+      <Progress size="xl" color={color} value={value < 66 ? 0 : 100} transitionDuration={0} />
+      <Progress size="xl" color={color} value={value < 100 ? 0 : 100} transitionDuration={0} />
     </Group>
   );
 };
 
-const CustomProgressBarSkill: React.FC<{ value: number }> = ({ value }) => {
-  let color = 'blue';
-  if (value === 0) {
-    color = 'red';
-  } else if (value <= 50) {
-    color = 'yellow';
-  } else {
-    color = 'green';
-  }
-
-  return (
-    <Group grow gap={5} mb="xs">
-      <Progress size="xl" color={color} value={value > 0 ? 100 : 0} transitionDuration={0} />
-      <Progress size="xl" color={color} value={value < 30 ? 0 : 100} transitionDuration={0} />
-      <Progress size="xl" color={color} value={value < 50 ? 0 : 100} transitionDuration={0} />
-      <Progress size="xl" color={color} value={value < 70 ? 0 : 100} transitionDuration={0} />
-    </Group>
-  );
-};
-
-const CustomProgressBarHealth: React.FC<{ value: number }> = ({ value }) => {
+// Health can remain as you had, or you can also segment it if you like:
+const CustomProgressBarHealth = ({ value }: { value: number }) => {
   let color = 'blue';
   if (value <= 25) {
     color = 'red';
@@ -87,6 +141,10 @@ const CustomProgressBarHealth: React.FC<{ value: number }> = ({ value }) => {
   return <Progress value={value} color={color} size="xl" mb="xs" />;
 };
 
+/* ----------------------------------------------
+   3) The UnitSelection component 
+      - uses the above functions/Progress Bars
+   ---------------------------------------------- */
 const UnitSelection: React.FC<UnitSelectionProps> = ({
   friendlyUnit,
   enemyUnits,
@@ -98,21 +156,19 @@ const UnitSelection: React.FC<UnitSelectionProps> = ({
   inEngagement,
   round
 }) => {
-  // Use friendlyUnit from props
+  // numeric health
   const friendlyHealth = friendlyUnit ? friendlyUnit.unit_health : 0;
   const enemyHealth = enemyUnit ? enemyUnit.unit_health : 0;
 
   return (
     <div>
-      {/* Just to demonstrate which friendly unit is loaded */}
       <Text>Selected Friendly Unit ID: {friendlyUnit?.unit_id ?? 'None'}</Text>
-
       <h1 style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         Round {round}
       </h1>
 
       <Grid justify="center" align="flex-start" gutter={100}>
-        {/* FRIENDLY UNIT CARD */}
+        {/* Friendly Unit Card */}
         <Grid.Col span={4}>
           <Card withBorder radius="md" className={classes.card}>
             <Card.Section className={classes.imageSection} mt="md">
@@ -128,7 +184,6 @@ const UnitSelection: React.FC<UnitSelectionProps> = ({
                 )}
               </Center>
             </Card.Section>
-
             <Card.Section>
               <Center>
                 <h2>{friendlyUnit ? friendlyUnit.unit_name : 'No Unit Selected'}</h2>
@@ -143,12 +198,22 @@ const UnitSelection: React.FC<UnitSelectionProps> = ({
                 <Space mb="5px" />
                 <strong>Force Mobility:</strong> {friendlyUnit.unit_mobility}
                 <Space mb="5px" />
+
+                {/* READINESS */}
                 <strong>Force Readiness:</strong> {friendlyUnit.unit_readiness}
-                <CustomProgressBarReadiness value={friendlyUnit.unit_readiness} />
+                <CustomProgressBarReadiness
+                  value={getReadinessProgress(friendlyUnit.unit_readiness)}
+                />
                 <Space mb="5px" />
+
+                {/* SKILL */}
                 <strong>Force Skill:</strong> {friendlyUnit.unit_skill}
-                <CustomProgressBarSkill value={friendlyUnit.unit_skill} />
+                <CustomProgressBarSkill
+                  value={getForceSkill(friendlyUnit.unit_skill)}
+                />
                 <Space mb="5px" />
+
+                {/* HEALTH */}
                 <strong>Health:</strong> {friendlyHealth}
                 <CustomProgressBarHealth value={friendlyHealth} />
               </Text>
@@ -158,7 +223,7 @@ const UnitSelection: React.FC<UnitSelectionProps> = ({
           </Card>
         </Grid.Col>
 
-        {/* ENEMY UNIT CARD or SELECT */}
+        {/* Enemy Unit Card or selection dropdown */}
         <Grid.Col span={4}>
           {enemyUnit ? (
             <Card withBorder radius="md" className={classes.card}>
@@ -183,12 +248,22 @@ const UnitSelection: React.FC<UnitSelectionProps> = ({
                 <Space mb="5px" />
                 <strong>Force Mobility:</strong> {enemyUnit.unit_mobility}
                 <Space mb="5px" />
+
+                {/* READINESS */}
                 <strong>Force Readiness:</strong> {enemyUnit.unit_readiness}
-                <CustomProgressBarReadiness value={enemyUnit.unit_readiness} />
+                <CustomProgressBarReadiness
+                  value={getReadinessProgress(enemyUnit.unit_readiness)}
+                />
                 <Space mb="5px" />
+
+                {/* SKILL */}
                 <strong>Force Skill:</strong> {enemyUnit.unit_skill}
-                <CustomProgressBarSkill value={enemyUnit.unit_skill} />
+                <CustomProgressBarSkill
+                  value={getForceSkill(enemyUnit.unit_skill)}
+                />
                 <Space mb="5px" />
+
+                {/* HEALTH */}
                 <strong>Health:</strong> {enemyHealth}
                 <CustomProgressBarHealth value={enemyHealth} />
               </Text>
@@ -210,7 +285,7 @@ const UnitSelection: React.FC<UnitSelectionProps> = ({
         </Grid.Col>
       </Grid>
 
-      {/* Action Buttons */}
+      {/* Buttons */}
       <Group justify="center" mt="xl">
         {(!inEngagement && enemyUnit) && (
           <Button onClick={handleDeselectEnemy} disabled={!enemyUnit} color="red">
