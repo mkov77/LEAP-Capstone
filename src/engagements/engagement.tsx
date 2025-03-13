@@ -178,11 +178,11 @@ function Engagement() {
       >
         {/* STEP 0: Round Setup */}
         <Stepper.Step icon={<IconSwords stroke={1.5} style={{ width: rem(27), height: rem(27) }} />}>
-          <Text>Round Setup</Text>
           <Text>
             Selected Friendly Unit: {selectedUnit ?? 'None'}
           </Text>
           <UnitSelection
+            friendlyUnit={selectedUnit}
             enemyUnits={enemyUnits}
             enemyUnit={enemyUnit}
             setEnemyUnit={setEnemyUnit}
