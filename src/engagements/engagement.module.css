@@ -1,0 +1,29 @@
+.button {
+  position: relative;
+  transition: background-color 150ms ease;
+  padding: 10px 20px;
+  text-align: center;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  color: white;
+  font-size: 16px;
+}
+
+.label {
+  position: relative;
+  z-index: 1;
+  display: block;
+  padding: 10px;
+}
+
+.progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: auto;
+  background-color: transparent;
+  z-index: 0;
+}

@@ -1,8 +1,9 @@
 // Engagement.tsx
 
 import React, { useEffect, useState } from 'react';
+import { useInterval } from '@mantine/hooks';
 import {
-  Stepper, Button, Text, Group, rem, Grid, SegmentedControl, Tooltip
+  Stepper, Button, Text, Group, rem, Grid, SegmentedControl, Tooltip, Progress, Container
 } from '@mantine/core';
 import {
   IconHeartbeat,
@@ -18,6 +19,7 @@ import { useUserRole } from '../context/UserContext';
 import axios from 'axios';
 import UnitSelection from './unitSelection';
 import { Unit } from '../types/unit';
+import classes from './engagement.module.css';
 
 import {
   runEngagementCalculation,
@@ -54,6 +56,11 @@ function Engagement() {
   // Phase 3 states
   const [defendingCritical, setDefendingCritical] = useState<boolean>(false);
   const [targetInOuterSOI, setTargetInOuterSOI] = useState<boolean>(false);
+
+  // Animating Finalize Button
+  const [progress, setProgress] = useState(0); // Progress of the animation
+  const [loaded, setLoaded] = useState(false); // Tracks when animation is done
+
 
   // 1) Fetch friendly units
   useEffect(() => {
@@ -105,6 +112,24 @@ function Engagement() {
     }
     setActive((cur) => Math.min(4, cur + 1));
   };
+
+  // Initialize Progress Bar Animation
+  const interval = useInterval(
+    () =>
+      setProgress((current) => {
+        if (current < 100) {
+          return current + 1;  // Increment progress
+        }
+
+        interval.stop();  // Stop animation at 100%
+        setLoaded(true);  // Mark as complete
+        handleNextStep();  // Move to next step
+
+        return 0;
+      }),
+    40 // Adjust speed (40ms is smooth, decrease for faster fill)
+  );
+
 
   /**
    * doFinalize():
@@ -166,8 +191,8 @@ function Engagement() {
   };
 
   const friendlyUnitObject = selectedUnit
-  ? units.find((u) => u.unit_id === selectedUnit) || null
-  : null;
+    ? units.find((u) => u.unit_id === selectedUnit) || null
+    : null;
 
   return (
     <>
@@ -199,72 +224,126 @@ function Engagement() {
           label="Detection"
           icon={<IconNumber1Small stroke={1.5} style={{ width: rem(80), height: rem(80) }} />}
         >
-          <Text size="xl">Detection Phase</Text>
+          <Container size="md" p="xl">
+            <Text
+              fw={900}
+              tt="uppercase"
+              style={{
+                fontSize: '30px',
+                letterSpacing: '2px',
+                lineHeight: '1.2',
+                textShadow: '3px 3px 5px rgba(0,0,0,0.3)',
+                marginBottom: '20px',
+                textAlign: 'center',
+              }}
+            >
+              Detection Phase
+            </Text>
 
-          <Group mt="md">
-            <Text>Did you conduct ISR prior to moving land forces?</Text>
-            <Tooltip label="ISR is helpful">
-              <IconInfoCircle />
-            </Tooltip>
-          </Group>
-          <SegmentedControl
-            size="xl"
-            radius="xs"
-            color="gray"
-            data={[
-              { label: 'Yes', value: 'true' },
-              { label: 'No', value: 'false' },
-            ]}
-            value={String(isrConducted)}
-            onChange={(val) => setIsrConducted(val === 'true')}
-          />
+            <Group mt="md">
+              <Text>Did you conduct ISR prior to moving land forces?</Text>
+              <Tooltip label="ISR is helpful.">
+                <IconInfoCircle />
+              </Tooltip>
+            </Group>
 
-          <Text mt="md">Are your Comms/Data degraded?</Text>
-          <SegmentedControl
-            size="xl"
-            radius="xs"
-            color="gray"
-            data={[
-              { label: 'Yes', value: 'true' },
-              { label: 'No', value: 'false' },
-            ]}
-            value={String(commsDegraded)}
-            onChange={(val) => setCommsDegraded(val === 'true')}
-          />
+            <SegmentedControl
+              size="xl"
+              radius="xs"
+              color="gray"
+              data={[
+                { label: 'Yes', value: 'true' },
+                { label: 'No', value: 'false' },
+              ]}
+              value={String(isrConducted)}
+              onChange={(val) => setIsrConducted(val === 'true')}
+            />
+
+            <Group mt="md">
+              <Text mt="md">Are your Comms/Data degraded?</Text>
+              <Tooltip label="Comms info.">
+                <IconInfoCircle />
+              </Tooltip>
+            </Group>
+
+            <SegmentedControl
+              size="xl"
+              radius="xs"
+              color="gray"
+              data={[
+                { label: 'Yes', value: 'true' },
+                { label: 'No', value: 'false' },
+              ]}
+              value={String(commsDegraded)}
+              onChange={(val) => setCommsDegraded(val === 'true')}
+            />
+          </Container>
         </Stepper.Step>
+
+
 
         {/* STEP 2: Engagement Phase */}
         <Stepper.Step
           label="Engagement"
           icon={<IconNumber2Small stroke={1.5} style={{ width: rem(80), height: rem(80) }} />}
         >
-          <Text size="xl">Engagement Phase</Text>
+          <Container size="md" p="xl">
+            {/* Chunky Title for Engagement Phase */}
+            <Text
+              fw={900}
+              tt="uppercase"
+              style={{
+                fontSize: '30px',
+                letterSpacing: '2px',
+                lineHeight: '1.2',
+                textShadow: '3px 3px 5px rgba(0,0,0,0.3)',
+                marginBottom: '20px',
+                textAlign: 'center',
+              }}
+            >
+              Engagement Phase
+            </Text>
 
-          <Text mt="md">Do you have Close Air Support?</Text>
-          <SegmentedControl
-            size="xl"
-            radius="xs"
-            color="gray"
-            data={[
-              { label: 'Yes', value: 'true' },
-              { label: 'No', value: 'false' },
-            ]}
-            value={String(hasCAS)}
-            onChange={(val) => setHasCAS(val === 'true')}
-          />
+            {/* Group for CAS question */}
+            <Group mt="md">
+              <Text mt="md">Do you have Close Air Support?</Text>
+              <Tooltip label="CAS info.">
+                <IconInfoCircle />
+              </Tooltip>
+            </Group>
 
-          <Text mt="md">Is your GPS being jammed?</Text>
-          <SegmentedControl
-            size="xl"
-            radius="xs"
-            color="gray"
-            data={[
-              { label: 'Yes', value: 'true' },
-              { label: 'No', value: 'false' },
-            ]}
-            value={String(gpsJammed)}
-            onChange={(val) => setGpsJammed(val === 'true')}
-          />
+            <SegmentedControl
+              size="xl"
+              radius="xs"
+              color="gray"
+              data={[
+                { label: 'Yes', value: 'true' },
+                { label: 'No', value: 'false' },
+              ]}
+              value={String(hasCAS)}
+              onChange={(val) => setHasCAS(val === 'true')}
+            />
+
+            {/* Group for GPS Jamming question with Tooltip */}
+            <Group mt="md">
+              <Text mt="md">Is your GPS being jammed?</Text>
+              <Tooltip label="GPS jamming info.">
+                <IconInfoCircle />
+              </Tooltip>
+            </Group>
+
+            <SegmentedControl
+              size="xl"
+              radius="xs"
+              color="gray"
+              data={[
+                { label: 'Yes', value: 'true' },
+                { label: 'No', value: 'false' },
+              ]}
+              value={String(gpsJammed)}
+              onChange={(val) => setGpsJammed(val === 'true')}
+            />
+          </Container>
         </Stepper.Step>
 
         {/* STEP 3: Accuracy Phase */}
@@ -272,99 +351,176 @@ function Engagement() {
           label="Accuracy"
           icon={<IconNumber3Small stroke={1.5} style={{ width: rem(80), height: rem(80) }} />}
         >
-          <Text size="xl">Accuracy Phase</Text>
+          <Container size="md" p="xl">
+            <Text
+              fw={900}
+              tt="uppercase"
+              style={{
+                fontSize: '30px',
+                letterSpacing: '2px',
+                lineHeight: '1.2',
+                textShadow: '3px 3px 5px rgba(0,0,0,0.3)',
+                marginBottom: '20px',
+                textAlign: 'center',
+              }}
+            >
+              Accuracy Phase
+            </Text>
 
-          <Text mt="md">Is the target defending a critical location?</Text>
-          <SegmentedControl
-            size="xl"
-            radius="xs"
-            color="gray"
-            data={[
-              { label: 'Yes', value: 'true' },
-              { label: 'No', value: 'false' },
-            ]}
-            value={String(defendingCritical)}
-            onChange={(val) => setDefendingCritical(val === 'true')}
-          />
+            <Group mt="md">
+              <Text mt="md">Is the target defending a critical location?</Text>
+              <Tooltip label="Location info.">
+                <IconInfoCircle />
+              </Tooltip>
+            </Group>
 
-          <Text mt="md">Is the target in the outer half of your SOI?</Text>
-          <SegmentedControl
-            size="xl"
-            radius="xs"
-            color="gray"
-            data={[
-              { label: 'Yes', value: 'true' },
-              { label: 'No', value: 'false' },
-            ]}
-            value={String(targetInOuterSOI)}
-            onChange={(val) => setTargetInOuterSOI(val === 'true')}
-          />
+            <SegmentedControl
+              size="xl"
+              radius="xs"
+              color="gray"
+              data={[
+                { label: 'Yes', value: 'true' },
+                { label: 'No', value: 'false' },
+              ]}
+              value={String(defendingCritical)}
+              onChange={(val) => setDefendingCritical(val === 'true')}
+            />
+
+            <Group mt="md">
+              <Text mt="md">Is the target in the outer half of your SOI?</Text>
+              <Tooltip label="SOI info.">
+                <IconInfoCircle />
+              </Tooltip>
+            </Group>
+
+            <SegmentedControl
+              size="xl"
+              radius="xs"
+              color="gray"
+              data={[
+                { label: 'Yes', value: 'true' },
+                { label: 'No', value: 'false' },
+              ]}
+              value={String(targetInOuterSOI)}
+              onChange={(val) => setTargetInOuterSOI(val === 'true')}
+            />
+          </Container>
         </Stepper.Step>
+
 
         {/* STEP 4: After Action Review (Summary) */}
-        <Stepper.Step icon={<IconHeartbeat stroke={1.5} style={{ width: rem(35), height: rem(35) }} />}>
-          <Text size="xl">After Action Review</Text>
-          <Grid gutter="xl" mt="md">
-            {friendlyData && (
-              <Grid.Col span={6}>
-                <Text size="lg" fw={700}>Friendly Unit Results</Text>
-                <Text>Field of View (w): {friendlyData.w.toFixed(2)}</Text>
-                <Text>Area Covered (A): {friendlyData.A.toFixed(2)}</Text>
-                <Text>Time Spent Detecting (t): {friendlyData.t.toFixed(2)}</Text>
-                <Text>Probability of Detection (P): {friendlyData.P.toFixed(4)}</Text>
-                <Text>Radius (r): {friendlyData.r.toFixed(2)}</Text>
-                <Text>Accuracy Factor (σ): {friendlyData.sigma.toFixed(2)}</Text>
-                <Text>Probability of Hit (Ph): {friendlyData.Ph.toFixed(4)}</Text>
-                <Text>Range (b): {friendlyData.b.toFixed(2)}</Text>
-                <Text>d(r): {friendlyData.d_r.toFixed(4)}</Text>
-                <Text>d_mi: {friendlyData.d_mi.toFixed(2)}</Text>
-                <Text>Damage Dealt (D): {friendlyData.D.toFixed(2)}</Text>
-                <Text>Friendly Initial HP (Fi): {friendlyData.Fi.toFixed(2)}</Text>
-                <Text>Friendly Final HP (Fn): {friendlyData.Fn.toFixed(2)}</Text>
-              </Grid.Col>
-            )}
+        <Stepper.Step
+          icon={<IconHeartbeat stroke={1.5} style={{ width: rem(35), height: rem(35) }} />}
+        >
+          <Container size="lg" p="xl">
+            <Text
+              fw={900}
+              tt="uppercase"
+              style={{
+                fontSize: '30px',
+                letterSpacing: '2px',
+                lineHeight: '1.2',
+                textShadow: '3px 3px 5px rgba(0,0,0,0.3)',
+                marginBottom: '20px',
+                textAlign: 'center',
+              }}
+            >
+              After Action Review
+            </Text>
 
-            {enemyData && (
-              <Grid.Col span={6}>
-                <Text size="lg" fw={700}>Enemy Unit Results</Text>
-                <Text>Field of View (w): {enemyData.w.toFixed(2)}</Text>
-                <Text>Area Covered (A): {enemyData.A.toFixed(2)}</Text>
-                <Text>Time Spent Detecting (t): {enemyData.t.toFixed(2)}</Text>
-                <Text>Probability of Detection (P): {enemyData.P.toFixed(4)}</Text>
-                <Text>Radius (r): {enemyData.r.toFixed(2)}</Text>
-                <Text>Accuracy Factor (σ): {enemyData.sigma.toFixed(2)}</Text>
-                <Text>Probability of Hit (Ph): {enemyData.Ph.toFixed(4)}</Text>
-                <Text>Range (b): {enemyData.b.toFixed(2)}</Text>
-                <Text>d(r): {enemyData.d_r.toFixed(4)}</Text>
-                <Text>d_mi: {enemyData.d_mi.toFixed(2)}</Text>
-                <Text>Damage Dealt (D): {enemyData.D.toFixed(2)}</Text>
-                <Text>Enemy Initial HP (Fi): {enemyData.Fi.toFixed(2)}</Text>
-                <Text>Enemy Final HP (Fn): {enemyData.Fn.toFixed(2)}</Text>
-              </Grid.Col>
-            )}
-          </Grid>
+            <Grid gutter="xl" mt="md">
+              {friendlyData && (
+                <Grid.Col span={6}>
+                  <Text size="lg" fw={700} mb="md">
+                    Friendly Unit Results
+                  </Text>
+                  <Text>Field of View (w): {friendlyData.w.toFixed(2)}</Text>
+                  <Text>Area Covered (A): {friendlyData.A.toFixed(2)}</Text>
+                  <Text>Time Spent Detecting (t): {friendlyData.t.toFixed(2)}</Text>
+                  <Text>Probability of Detection (P): {friendlyData.P.toFixed(4)}</Text>
+                  <Text>Radius (r): {friendlyData.r.toFixed(2)}</Text>
+                  <Text>Accuracy Factor (σ): {friendlyData.sigma.toFixed(2)}</Text>
+                  <Text>Probability of Hit (Ph): {friendlyData.Ph.toFixed(4)}</Text>
+                  <Text>Range (b): {friendlyData.b.toFixed(2)}</Text>
+                  <Text>d(r): {friendlyData.d_r.toFixed(4)}</Text>
+                  <Text>d_mi: {friendlyData.d_mi.toFixed(2)}</Text>
+                  <Text>Damage Dealt (D): {friendlyData.D.toFixed(2)}</Text>
+                  <Text>Friendly Initial HP (Fi): {friendlyData.Fi.toFixed(2)}</Text>
+                  <Text>Friendly Final HP (Fn): {friendlyData.Fn.toFixed(2)}</Text>
+                </Grid.Col>
+              )}
+
+              {enemyData && (
+                <Grid.Col span={6}>
+                  <Text size="lg" fw={700} mb="md">
+                    Enemy Unit Results
+                  </Text>
+                  <Text>Field of View (w): {enemyData.w.toFixed(2)}</Text>
+                  <Text>Area Covered (A): {enemyData.A.toFixed(2)}</Text>
+                  <Text>Time Spent Detecting (t): {enemyData.t.toFixed(2)}</Text>
+                  <Text>Probability of Detection (P): {enemyData.P.toFixed(4)}</Text>
+                  <Text>Radius (r): {enemyData.r.toFixed(2)}</Text>
+                  <Text>Accuracy Factor (σ): {enemyData.sigma.toFixed(2)}</Text>
+                  <Text>Probability of Hit (Ph): {enemyData.Ph.toFixed(4)}</Text>
+                  <Text>Range (b): {enemyData.b.toFixed(2)}</Text>
+                  <Text>d(r): {enemyData.d_r.toFixed(4)}</Text>
+                  <Text>d_mi: {enemyData.d_mi.toFixed(2)}</Text>
+                  <Text>Damage Dealt (D): {enemyData.D.toFixed(2)}</Text>
+                  <Text>Enemy Initial HP (Fi): {enemyData.Fi.toFixed(2)}</Text>
+                  <Text>Enemy Final HP (Fn): {enemyData.Fn.toFixed(2)}</Text>
+                </Grid.Col>
+              )}
+            </Grid>
+          </Container>
         </Stepper.Step>
+
       </Stepper>
 
       {/* Step Navigation Buttons */}
       {active > 0 && active < 4 && (
         <Group justify="center" mt="xl">
+          {/* Back Button (Steps 2-3) */}
           {active > 1 && (
-            <Button
-              variant="default"
-              onClick={() => setActive((cur) => Math.max(1, cur - 1))}
-            >
+            <Button variant="default" onClick={() => setActive((cur) => Math.max(1, cur - 1))}>
               Back
             </Button>
           )}
-          <Button
-            color={active === 3 ? 'green' : undefined}
-            onClick={handleNextStep}
-          >
-            {active === 3 ? 'Finalize' : 'Continue'}
-          </Button>
+
+          {/* Finalize Button (Only on Step 3) */}
+          {active === 3 ? (
+            <Button
+              className={classes.button}
+              onClick={() => {
+                if (!interval.active) {
+                  interval.start(); // Start progress bar animation
+                }
+                doFinalize(); // Run engagement calculations
+              }}
+              color="green"
+              disabled={progress !== 0} // Disable while animating
+            >
+              <div className={classes.label}>
+                {progress !== 0 ? 'Calculating Scores...' : loaded ? 'Complete' : 'Finalize'}
+              </div>
+
+              {/* Fancy Progress Bar Animation */}
+              {progress !== 0 && (
+                <Progress
+                  style={{ height: '10px', width: '100%' }}
+                  value={progress}
+                  className={classes.progress}
+                  color="blue"
+                  radius="sm"
+                />
+              )}
+            </Button>
+          ) : (
+            // Continue Button (Steps 1-2)
+            <Button onClick={handleNextStep}>Continue</Button>
+          )}
         </Group>
       )}
+
     </>
   );
 }
