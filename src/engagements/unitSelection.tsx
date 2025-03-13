@@ -1,12 +1,23 @@
 import React from 'react';
-import { Grid, Card, Image, Text, Space, Center, Select, Button, Group, Progress } from '@mantine/core';
-import { useUnitProvider } from '../context/UnitContext';
+import {
+  Grid,
+  Card,
+  Image,
+  Text,
+  Space,
+  Center,
+  Select,
+  Button,
+  Group,
+  Progress
+} from '@mantine/core';
 import getImageSRC from '../context/imageSrc';
+import { Unit } from '../types/unit';
 import classes from './unitSelection.module.css';
-import { Unit } from '../types/unit'
 
-// Define props for the UnitSelection component
+// Props
 interface UnitSelectionProps {
+  friendlyUnit: Unit | null;      // The friendly unit is passed in from Engagement
   enemyUnits: Unit[];
   enemyUnit: Unit | null;
   setEnemyUnit: (unit: Unit | null) => void;
@@ -17,7 +28,7 @@ interface UnitSelectionProps {
   round: number;
 }
 
-// Custom Progress Bar for Force Readiness
+// Progress Bars for readiness, skill, and health
 const CustomProgressBarReadiness: React.FC<{ value: number }> = ({ value }) => {
   let color = 'blue';
   if (value === 0) {
@@ -31,6 +42,7 @@ const CustomProgressBarReadiness: React.FC<{ value: number }> = ({ value }) => {
   } else {
     color = 'green';
   }
+
   return (
     <Group grow gap={5} mb="xs">
       <Progress size="xl" color={color} value={value > 0 ? 100 : 0} transitionDuration={0} />
@@ -41,7 +53,6 @@ const CustomProgressBarReadiness: React.FC<{ value: number }> = ({ value }) => {
   );
 };
 
-// Custom Progress Bar for Force Skill
 const CustomProgressBarSkill: React.FC<{ value: number }> = ({ value }) => {
   let color = 'blue';
   if (value === 0) {
@@ -51,6 +62,7 @@ const CustomProgressBarSkill: React.FC<{ value: number }> = ({ value }) => {
   } else {
     color = 'green';
   }
+
   return (
     <Group grow gap={5} mb="xs">
       <Progress size="xl" color={color} value={value > 0 ? 100 : 0} transitionDuration={0} />
@@ -61,7 +73,6 @@ const CustomProgressBarSkill: React.FC<{ value: number }> = ({ value }) => {
   );
 };
 
-// Custom Progress Bar for Unit Health
 const CustomProgressBarHealth: React.FC<{ value: number }> = ({ value }) => {
   let color = 'blue';
   if (value <= 25) {
@@ -77,62 +88,68 @@ const CustomProgressBarHealth: React.FC<{ value: number }> = ({ value }) => {
 };
 
 const UnitSelection: React.FC<UnitSelectionProps> = ({
+  friendlyUnit,
   enemyUnits,
   enemyUnit,
+  setEnemyUnit,
   handleSelectEnemy,
   handleDeselectEnemy,
   handleStartEngagement,
   inEngagement,
   round
 }) => {
-  const { selectedUnit } = useUnitProvider();
-  const unit: Unit | null = selectedUnit || null;
-
-  const friendlyHealth = unit ? unit.unit_health : 0;
+  // Use friendlyUnit from props
+  const friendlyHealth = friendlyUnit ? friendlyUnit.unit_health : 0;
   const enemyHealth = enemyUnit ? enemyUnit.unit_health : 0;
 
   return (
     <div>
+      {/* Just to demonstrate which friendly unit is loaded */}
+      <Text>Selected Friendly Unit ID: {friendlyUnit?.unit_id ?? 'None'}</Text>
+
       <h1 style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         Round {round}
       </h1>
+
       <Grid justify="center" align="flex-start" gutter={100}>
-        {/* Friendly Unit Card */}
+        {/* FRIENDLY UNIT CARD */}
         <Grid.Col span={4}>
           <Card withBorder radius="md" className={classes.card}>
             <Card.Section className={classes.imageSection} mt="md">
-              <Group>
-                <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
-                  {unit ? (
-                    <Image
-                      src={getImageSRC(unit.unit_type, true)}
-                      height={160}
-                      style={{ width: 'auto', maxHeight: '100%', objectFit: 'contain' }}
-                    />
-                  ) : (
-                    <Text size="sm">No friendly unit selected</Text>
-                  )}
-                </div>
-              </Group>
-            </Card.Section>
-            <Card.Section>
               <Center>
-                <h2>{unit ? unit.unit_name : "No Unit Selected"}</h2>
+                {friendlyUnit ? (
+                  <Image
+                    src={getImageSRC(friendlyUnit.unit_type, true)}
+                    height={160}
+                    style={{ width: 'auto', maxHeight: '100%', objectFit: 'contain' }}
+                  />
+                ) : (
+                  <Text size="sm">No friendly unit selected</Text>
+                )}
               </Center>
             </Card.Section>
-            {unit ? (
+
+            <Card.Section>
+              <Center>
+                <h2>{friendlyUnit ? friendlyUnit.unit_name : 'No Unit Selected'}</h2>
+              </Center>
+            </Card.Section>
+
+            {friendlyUnit ? (
               <Text size="xl" style={{ whiteSpace: 'pre-line' }}>
-                <strong>Type:</strong> {unit.unit_type}<br />
+                <strong>Type:</strong> {friendlyUnit.unit_type}
                 <Space mb="5px" />
-                <strong>Unit Size:</strong> {unit.unit_size}<br />
+                <strong>Unit Size:</strong> {friendlyUnit.unit_size}
                 <Space mb="5px" />
-                <strong>Force Mobility:</strong> {unit.unit_mobility}<br />
+                <strong>Force Mobility:</strong> {friendlyUnit.unit_mobility}
                 <Space mb="5px" />
-                <strong>Force Readiness:</strong> {unit.unit_readiness}<br />
-                <CustomProgressBarReadiness value={unit.unit_readiness} /><br />
-                <strong>Force Skill:</strong> {unit.unit_skill}<br />
-                <CustomProgressBarSkill value={unit.unit_skill} /><br />
-                <strong>Health:</strong> {friendlyHealth}<br />
+                <strong>Force Readiness:</strong> {friendlyUnit.unit_readiness}
+                <CustomProgressBarReadiness value={friendlyUnit.unit_readiness} />
+                <Space mb="5px" />
+                <strong>Force Skill:</strong> {friendlyUnit.unit_skill}
+                <CustomProgressBarSkill value={friendlyUnit.unit_skill} />
+                <Space mb="5px" />
+                <strong>Health:</strong> {friendlyHealth}
                 <CustomProgressBarHealth value={friendlyHealth} />
               </Text>
             ) : (
@@ -141,18 +158,18 @@ const UnitSelection: React.FC<UnitSelectionProps> = ({
           </Card>
         </Grid.Col>
 
-        {/* Enemy Unit Card or Selection */}
+        {/* ENEMY UNIT CARD or SELECT */}
         <Grid.Col span={4}>
           {enemyUnit ? (
             <Card withBorder radius="md" className={classes.card}>
               <Card.Section className={classes.imageSection} mt="md">
-                <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
+                <Center>
                   <Image
                     src={getImageSRC(enemyUnit.unit_type, false)}
                     height={160}
                     style={{ width: 'auto', maxHeight: '100%', objectFit: 'contain' }}
                   />
-                </div>
+                </Center>
               </Card.Section>
               <Card.Section>
                 <Center>
@@ -160,32 +177,35 @@ const UnitSelection: React.FC<UnitSelectionProps> = ({
                 </Center>
               </Card.Section>
               <Text size="xl">
-                <strong>Type:</strong> {enemyUnit.unit_type}<br />
+                <strong>Type:</strong> {enemyUnit.unit_type}
                 <Space mb="5px" />
-                <strong>Unit Size:</strong> {enemyUnit.unit_size}<br />
+                <strong>Unit Size:</strong> {enemyUnit.unit_size}
                 <Space mb="5px" />
-                <strong>Force Mobility:</strong> {enemyUnit.unit_mobility}<br />
+                <strong>Force Mobility:</strong> {enemyUnit.unit_mobility}
                 <Space mb="5px" />
-                <strong>Force Readiness:</strong> {enemyUnit.unit_readiness}<br />
-                <CustomProgressBarReadiness value={enemyUnit.unit_readiness} /><br />
-                <strong>Force Skill:</strong> {enemyUnit.unit_skill}<br />
-                <CustomProgressBarSkill value={enemyUnit.unit_skill} /><br />
-                <strong>Health:</strong> {enemyHealth}<br />
+                <strong>Force Readiness:</strong> {enemyUnit.unit_readiness}
+                <CustomProgressBarReadiness value={enemyUnit.unit_readiness} />
+                <Space mb="5px" />
+                <strong>Force Skill:</strong> {enemyUnit.unit_skill}
+                <CustomProgressBarSkill value={enemyUnit.unit_skill} />
+                <Space mb="5px" />
+                <strong>Health:</strong> {enemyHealth}
                 <CustomProgressBarHealth value={enemyHealth} />
               </Text>
             </Card>
+          ) : enemyUnits.length === 0 ? (
+            <h2>No enemy units to select</h2>
           ) : (
-            enemyUnits.length === 0 ? (
-              <h2>No enemy units to select</h2>
-            ) : (
-              <Select
-                label="Select Enemy Unit"
-                placeholder="Select Enemy Unit"
-                data={enemyUnits.map(eUnit => ({ value: eUnit.unit_id.toString(), label: eUnit.unit_name }))}
-                searchable
-                onChange={handleSelectEnemy}
-              />
-            )
+            <Select
+              label="Select Enemy Unit"
+              placeholder="Select Enemy Unit"
+              data={enemyUnits.map(eUnit => ({
+                value: eUnit.unit_id.toString(),
+                label: eUnit.unit_name
+              }))}
+              searchable
+              onChange={handleSelectEnemy}
+            />
           )}
         </Grid.Col>
       </Grid>
