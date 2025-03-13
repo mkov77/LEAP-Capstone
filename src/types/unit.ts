@@ -6,6 +6,6 @@ export interface Unit {
     unit_health: number;
     unit_size: string;
     unit_mobility: string;
-    unit_readiness: number;
-    unit_skill: number;
+    unit_readiness: string;
+    unit_skill: string;
   }  

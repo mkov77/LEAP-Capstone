@@ -152,7 +152,6 @@ function Engagement() {
       gpsJammed: false,
       defendingCritical: false,
       targetInOuterSOI: false,
-      // no "maneuverableTarget" here
     };
 
     const results: CalculationResult = runEngagementCalculation({
