@@ -166,6 +166,10 @@ function Engagement() {
     setEnemyData(results.enemy);
   };
 
+  const friendlyUnitObject = selectedUnit
+  ? units.find((u) => u.unit_id === selectedUnit) || null
+  : null;
+
   return (
     <>
       <Stepper
@@ -182,7 +186,7 @@ function Engagement() {
             Selected Friendly Unit: {selectedUnit ?? 'None'}
           </Text>
           <UnitSelection
-            friendlyUnit={selectedUnit}
+            friendlyUnit={friendlyUnitObject}
             enemyUnits={enemyUnits}
             enemyUnit={enemyUnit}
             setEnemyUnit={setEnemyUnit}
