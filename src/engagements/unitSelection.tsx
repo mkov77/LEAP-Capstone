@@ -162,7 +162,6 @@ const UnitSelection: React.FC<UnitSelectionProps> = ({
 
   return (
     <div>
-      <Text>Selected Friendly Unit ID: {friendlyUnit?.unit_id ?? 'None'}</Text>
       <h1 style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         Round {round}
       </h1>
