@@ -200,11 +200,6 @@ function Engagement() {
       <Stepper
         m="md"
         active={active}
-        onStepClick={(step) => {
-          if (active < 4 && step < 4 && step <= active) {
-            setActive(step);
-          }
-        }}
       >
         {/* STEP 0: Round Setup */}
         <Stepper.Step icon={<IconSwords stroke={1.5} style={{ width: rem(27), height: rem(27) }} />}>
