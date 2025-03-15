@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { useInterval } from '@mantine/hooks';
 import {
-  Stepper, Button, Text, Group, rem, Grid, SegmentedControl, Tooltip, Progress, Container
+  Stepper, Button, Text, Group, rem, Grid, SegmentedControl, Tooltip, Progress, Container,
+  Space
 } from '@mantine/core';
 import {
   IconHeartbeat,
@@ -197,6 +198,7 @@ function Engagement() {
   return (
     <>
       <Stepper
+        m="md"
         active={active}
         onStepClick={(step) => {
           if (active < 4 && step < 4 && step <= active) {
@@ -506,10 +508,10 @@ function Engagement() {
               {/* Fancy Progress Bar Animation */}
               {progress !== 0 && (
                 <Progress
-                  style={{ height: '10px', width: '100%' }}
+                  style={{ height: '100%', width: '100%' }}
                   value={progress}
                   className={classes.progress}
-                  color="blue"
+                  color="grey"
                   radius="sm"
                 />
               )}
