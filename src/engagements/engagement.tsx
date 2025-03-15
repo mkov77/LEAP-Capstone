@@ -128,7 +128,7 @@ function Engagement() {
 
         return 0;
       }),
-    40 // Adjust speed (40ms is smooth, decrease for faster fill)
+    20 // Adjust speed (40ms is smooth, decrease for faster fill)
   );
 
 
@@ -237,12 +237,16 @@ function Engagement() {
               Detection Phase
             </Text>
 
-            <Group mt="md">
-              <Text>Did you conduct ISR prior to moving land forces?</Text>
+            <Group mt="md" align="center" gap="xs">
+              <Text style={{
+                fontSize: '20px'
+              }}>Did you conduct ISR prior to moving land forces?</Text>
               <Tooltip label="ISR is helpful.">
                 <IconInfoCircle />
               </Tooltip>
             </Group>
+
+            <Space h="sm" />
 
             <SegmentedControl
               size="xl"
@@ -256,12 +260,16 @@ function Engagement() {
               onChange={(val) => setIsrConducted(val === 'true')}
             />
 
-            <Group mt="md">
-              <Text mt="md">Are your Comms/Data degraded?</Text>
+            <Group mt="md" align="center" gap="xs">
+              <Text style={{
+                fontSize: '20px'
+              }}>Are your Comms/Data degraded?</Text>
               <Tooltip label="Comms info.">
                 <IconInfoCircle />
               </Tooltip>
             </Group>
+
+            <Space h="sm" />
 
             <SegmentedControl
               size="xl"
@@ -302,12 +310,14 @@ function Engagement() {
             </Text>
 
             {/* Group for CAS question */}
-            <Group mt="md">
-              <Text mt="md">Do you have Close Air Support?</Text>
+            <Group mt="md" align="center" gap="xs">
+              <Text style={{ fontSize: '20px' }}>Do you have Close Air Support?</Text>
               <Tooltip label="CAS info.">
                 <IconInfoCircle />
               </Tooltip>
             </Group>
+
+            <Space h="sm" />
 
             <SegmentedControl
               size="xl"
@@ -322,12 +332,14 @@ function Engagement() {
             />
 
             {/* Group for GPS Jamming question with Tooltip */}
-            <Group mt="md">
-              <Text mt="md">Is your GPS being jammed?</Text>
+            <Group mt="md" align="center" gap="xs">
+              <Text style={{ fontSize: '20px' }}>Is your GPS being jammed?</Text>
               <Tooltip label="GPS jamming info.">
                 <IconInfoCircle />
               </Tooltip>
             </Group>
+
+            <Space h="sm" />
 
             <SegmentedControl
               size="xl"
@@ -364,12 +376,15 @@ function Engagement() {
               Accuracy Phase
             </Text>
 
-            <Group mt="md">
-              <Text mt="md">Is the target defending a critical location?</Text>
+            {/* Defending Critical Location */}
+            <Group mt="md" align="center" gap="xs">
+              <Text style={{ fontSize: '20px' }}>Is the target defending a critical location?</Text>
               <Tooltip label="Location info.">
                 <IconInfoCircle />
               </Tooltip>
             </Group>
+
+            <Space h="sm" />
 
             <SegmentedControl
               size="xl"
@@ -383,12 +398,15 @@ function Engagement() {
               onChange={(val) => setDefendingCritical(val === 'true')}
             />
 
-            <Group mt="md">
-              <Text mt="md">Is the target in the outer half of your SOI?</Text>
+            {/* Target in Outer SOI */}
+            <Group mt="md" align="center" gap="xs">
+              <Text style={{ fontSize: '20px' }}>Is the target in the outer half of your SOI?</Text>
               <Tooltip label="SOI info.">
                 <IconInfoCircle />
               </Tooltip>
             </Group>
+
+            <Space h="sm" />
 
             <SegmentedControl
               size="xl"
