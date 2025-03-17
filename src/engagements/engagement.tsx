@@ -488,7 +488,7 @@ function Engagement() {
 
             {/* Only show "Continue" if both sides > 0. Otherwise end. */}
             {friendlyData && enemyData && (
-              <Group mt="lg">
+              <Group mt="lg" justify='center'>
                 {canContinue ? (
                   <Button color="blue" onClick={handleContinueRound}>
                     Continue to Round {roundNumber + 1}
