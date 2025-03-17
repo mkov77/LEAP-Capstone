@@ -20,16 +20,33 @@ const AfterActionReview: React.FC<AfterActionReviewProps> = ({
   friendlyData,
   enemyData,
 }) => {
-  // Hard-coded placeholder data for demonstration:
-  // Explicitly typed to avoid literal-type comparisons
+  // -- Hard-coded placeholder data (for demonstration) --
   const friendlyUnitName: string = 'Friendly Unit (Placeholder)';
   const enemyUnitName: string = 'Enemy Unit (Placeholder)';
-  const friendlyHealth: number = 40;  // e.g. out of 100
-  const enemyHealth: number = 0;      // e.g. FATAL = 0
+  const friendlyHealth: number = 40; 
+  const enemyHealth: number = 0;     
   const friendlyDamage: number = 60;
   const enemyDamage: number = 100;
   const friendlyBaseValue: number = 50;
   const enemyBaseValue: number = 45;
+
+  // -- Friendly side normalized scores --
+  const friendlyPE = friendlyData ? friendlyData.P : 0;    // Probability of detection
+  const friendlyPh = friendlyData ? friendlyData.Ph : 0;   // Probability of hit
+  const friendlyDr = friendlyData ? friendlyData.d_r : 0;  // Attacker accuracy term
+
+  const peScorePercentFriendly = friendlyPE * 100;
+  const phScorePercentFriendly = friendlyPh * 100;
+  const drScorePercentFriendly = friendlyDr * 100;
+
+  // -- Enemy side normalized scores --
+  const enemyPE = enemyData ? enemyData.P : 0;
+  const enemyPh = enemyData ? enemyData.Ph : 0;
+  const enemyDr = enemyData ? enemyData.d_r : 0;
+
+  const peScorePercentEnemy = enemyPE * 100;
+  const phScorePercentEnemy = enemyPh * 100;
+  const drScorePercentEnemy = enemyDr * 100;
 
   return (
     <>
@@ -81,10 +98,8 @@ const AfterActionReview: React.FC<AfterActionReviewProps> = ({
                           color="#3d85c6"
                           key="remaining"
                         >
-                          {/* Show "No Damage" label if friendlyDamage == 0 */}
                           {friendlyDamage === 0 ? 'No Damage' : ''}
                         </Progress.Section>
-
                         <Progress.Section
                           value={friendlyDamage}
                           color="#2b5d8b"
@@ -132,7 +147,6 @@ const AfterActionReview: React.FC<AfterActionReviewProps> = ({
                         >
                           {enemyDamage === 0 ? 'No Damage' : ''}
                         </Progress.Section>
-
                         <Progress.Section
                           value={enemyDamage}
                           color="#872f1f"
@@ -160,20 +174,18 @@ const AfterActionReview: React.FC<AfterActionReviewProps> = ({
             </Grid>
           </Card.Section>
 
-          {/* Scores Section (Attributes Only) */}
+          {/* Scores Section (Attributes + the 3 new Bars for each side) */}
           <Card.Section withBorder inheritPadding py="xs">
             <Text size="xl" fw={700}>
               Scores
             </Text>
 
-            {/* Group: remove position="center" in Mantine v7; use style or justify instead */}
+            {/* Attributes Bar */}
             <Group mt="md" style={{ justifyContent: 'center' }}>
               <Container>
-                {/* No more "align" prop in Mantine v7, so use style or 'ta="center"' in v6 */}
                 <Text size="lg" fw={500} style={{ textAlign: 'center' }}>
                   Attributes
                 </Text>
-
                 {/* Friendly Attribute Score */}
                 <Tooltip label="Friendly Attribute Score" color="gray" position="bottom">
                   <Progress.Root m={10} style={{ height: '20px' }}>
@@ -182,7 +194,6 @@ const AfterActionReview: React.FC<AfterActionReviewProps> = ({
                     </Progress.Section>
                   </Progress.Root>
                 </Tooltip>
-
                 {/* Enemy Attribute Score */}
                 <Tooltip label="Enemy Attribute Score" color="gray" position="bottom">
                   <Progress.Root m={10} style={{ height: '20px' }}>
@@ -193,11 +204,93 @@ const AfterActionReview: React.FC<AfterActionReviewProps> = ({
                 </Tooltip>
               </Container>
             </Group>
+
+            {/* Performance Bars for the friendly side (P, Ph, d_r) */}
+            <Group mt="md" style={{ justifyContent: 'center' }}>
+              <Container>
+                <Text fw={500} style={{ textAlign: 'center' }}>
+                  Friendly PE Score
+                </Text>
+                <Progress.Root m={10} style={{ height: '20px' }}>
+                  <Progress.Section
+                    value={peScorePercentFriendly}
+                    color="#3d85c6"
+                  >
+                    {peScorePercentFriendly.toFixed(0)}%
+                  </Progress.Section>
+                </Progress.Root>
+
+                <Text fw={500} style={{ textAlign: 'center' }}>
+                  Friendly Ph Score
+                </Text>
+                <Progress.Root m={10} style={{ height: '20px' }}>
+                  <Progress.Section
+                    value={phScorePercentFriendly}
+                    color="#3d85c6"
+                  >
+                    {phScorePercentFriendly.toFixed(0)}%
+                  </Progress.Section>
+                </Progress.Root>
+
+                <Text fw={500} style={{ textAlign: 'center' }}>
+                  Friendly d<sub>r</sub> Score
+                </Text>
+                <Progress.Root m={10} style={{ height: '20px' }}>
+                  <Progress.Section
+                    value={drScorePercentFriendly}
+                    color="#3d85c6"
+                  >
+                    {drScorePercentFriendly.toFixed(0)}%
+                  </Progress.Section>
+                </Progress.Root>
+              </Container>
+            </Group>
+
+            {/* Performance Bars for the enemy side (P, Ph, d_r) */}
+            <Group mt="md" style={{ justifyContent: 'center' }}>
+              <Container>
+                <Text fw={500} style={{ textAlign: 'center' }}>
+                  Enemy PE Score
+                </Text>
+                <Progress.Root m={10} style={{ height: '20px' }}>
+                  <Progress.Section
+                    value={peScorePercentEnemy}
+                    color="#c1432d"
+                  >
+                    {peScorePercentEnemy.toFixed(0)}%
+                  </Progress.Section>
+                </Progress.Root>
+
+                <Text fw={500} style={{ textAlign: 'center' }}>
+                  Enemy Ph Score
+                </Text>
+                <Progress.Root m={10} style={{ height: '20px' }}>
+                  <Progress.Section
+                    value={phScorePercentEnemy}
+                    color="#c1432d"
+                  >
+                    {phScorePercentEnemy.toFixed(0)}%
+                  </Progress.Section>
+                </Progress.Root>
+
+                <Text fw={500} style={{ textAlign: 'center' }}>
+                  Enemy d<sub>r</sub> Score
+                </Text>
+                <Progress.Root m={10} style={{ height: '20px' }}>
+                  <Progress.Section
+                    value={drScorePercentEnemy}
+                    color="#c1432d"
+                  >
+                    {drScorePercentEnemy.toFixed(0)}%
+                  </Progress.Section>
+                </Progress.Root>
+              </Container>
+            </Group>
           </Card.Section>
         </Card>
       </Group>
 
-      {/* Engagement Data Grid */}
+      {/* Engagement Data Grid (unchanged) */}
       <Grid gutter="xl" mt="md">
         {/* FRIENDLY DATA */}
         {friendlyData && (

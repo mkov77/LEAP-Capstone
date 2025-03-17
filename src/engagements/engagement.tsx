@@ -3,8 +3,17 @@
 import React, { useEffect, useState } from 'react';
 import { useInterval } from '@mantine/hooks';
 import {
-  Stepper, Button, Text, Group, rem, Grid, SegmentedControl, Tooltip, Progress, Container,
-  Space
+  Stepper,
+  Button,
+  Text,
+  Group,
+  rem,
+  Grid,
+  SegmentedControl,
+  Tooltip,
+  Progress,
+  Container,
+  Space,
 } from '@mantine/core';
 import {
   IconHeartbeat,
@@ -26,25 +35,35 @@ import {
   runEngagementCalculation,
   CalculationResult,
   EngagementData,
-  UnitModifiers, // so we can build "friendlyMods"/"enemyMods"
+  UnitModifiers,
 } from './calculateEngagement';
 
 import AfterActionReview from './AfterActionReview';
+import { useNavigate } from 'react-router-dom';
 
 /** Engagement Component */
 function Engagement() {
   const { selectedUnit } = useUnitProvider();
   const { userSection } = useUserRole();
 
+  // Stepper State
   const [active, setActive] = useState(0);
+
+  // Basic Round Tracking
+  const [roundNumber, setRoundNumber] = useState(1);
 
   // Store friendly & enemy units from API
   const [units, setUnits] = useState<Unit[]>([]);
   const [enemyUnits, setEnemyUnits] = useState<Unit[]>([]);
 
+  // Currently selected enemy
   const [enemyUnit, setEnemyUnit] = useState<Unit | null>(null);
 
-  // After we finalize, we store the final calculations here
+  // Current HP for each side (carried forward between rounds)
+  const [friendlyHP, setFriendlyHP] = useState<number | null>(null);
+  const [enemyHP, setEnemyHP] = useState<number | null>(null);
+
+  // After finalize, store final calculations
   const [friendlyData, setFriendlyData] = useState<EngagementData | null>(null);
   const [enemyData, setEnemyData] = useState<EngagementData | null>(null);
 
@@ -61,9 +80,10 @@ function Engagement() {
   const [targetInOuterSOI, setTargetInOuterSOI] = useState<boolean>(false);
 
   // Animating Finalize Button
-  const [progress, setProgress] = useState(0); // Progress of the animation
-  const [loaded, setLoaded] = useState(false); // Tracks when animation is done
+  const [progress, setProgress] = useState(0);
+  const [loaded, setLoaded] = useState(false);
 
+  const navigate = useNavigate();
 
   // 1) Fetch friendly units
   useEffect(() => {
@@ -97,57 +117,59 @@ function Engagement() {
     fetchEnemyUnits();
   }, [userSection]);
 
-  // Handlers for selecting the enemy unit
+  // Handlers for selecting the enemy
   const handleSelectEnemy = (value: string | null) => {
     const found = enemyUnits.find((u) => u.unit_id.toString() === value);
     setEnemyUnit(found || null);
   };
-
   const handleDeselectEnemy = () => {
     setEnemyUnit(null);
   };
 
   // Stepper Navigation
   const handleNextStep = () => {
-    // If user is at Step 3 => pressing "Finalize" => do calculations, then go to Step 4
+    // If user is on Step 3 => pressing "Continue" => do calculations, then go Step 4
     if (active === 3) {
       doFinalize();
     }
     setActive((cur) => Math.min(4, cur + 1));
   };
 
+  // Hnadle Exit
+  const handleExit = () => {
+    navigate(`/studentPage/${userSection}`);
+  };
+  
+
   // Initialize Progress Bar Animation
   const interval = useInterval(
     () =>
       setProgress((current) => {
         if (current < 100) {
-          return current + 1;  // Increment progress
+          return current + 1;
         }
-
-        interval.stop();  // Stop animation at 100%
-        setLoaded(true);  // Mark as complete
-        handleNextStep();  // Move to next step
-
+        interval.stop();
+        setLoaded(true);
+        handleNextStep();
         return 0;
       }),
-    20 // Adjust speed (40ms is smooth, decrease for faster fill)
+    20 // speed
   );
-
 
   /**
    * doFinalize():
    *  - Gathers all user inputs into "friendlyMods" & "enemyMods".
-   *  - Calls "runEngagementCalculation" with the correct parameter shape.
-   *  - Stores final results (friendlyData, enemyData) in state.
+   *  - Calls "runEngagementCalculation".
+   *  - Stores final results (friendlyData, enemyData).
    */
   const doFinalize = () => {
     if (!selectedUnit || !enemyUnit) return;
 
-    const friendlyUnit = units.find((u) => u.unit_id === selectedUnit);
-    const foeUnit = enemyUnits.find((u) => u.unit_id === enemyUnit.unit_id);
-    if (!friendlyUnit || !foeUnit) return;
+    const friendlyUnitObj = units.find((u) => u.unit_id === selectedUnit);
+    const enemyUnitObj = enemyUnits.find((u) => u.unit_id === enemyUnit.unit_id);
+    if (!friendlyUnitObj || !enemyUnitObj) return;
 
-    // Build the "friendlyMods" based on user states
+    // Build "friendlyMods" from user states
     const friendlyMods: UnitModifiers = {
       roleType: 'Combat',
       unitSize: 'Battalion',
@@ -162,10 +184,9 @@ function Engagement() {
       gpsJammed,
       defendingCritical,
       targetInOuterSOI,
-      // no "maneuverableTarget" here, removed
     };
 
-    // For enemy side, default or your own states
+    // Enemy side (could expand states for enemy if you like)
     const enemyMods: UnitModifiers = {
       roleType: 'Combat',
       unitSize: 'Battalion',
@@ -182,15 +203,48 @@ function Engagement() {
       targetInOuterSOI: false,
     };
 
+    // Overwrite the unit's HP with current HP if we already have it
+    if (friendlyHP != null) friendlyUnitObj.unit_health = friendlyHP;
+    if (enemyHP != null) enemyUnitObj.unit_health = enemyHP;
+
     const results: CalculationResult = runEngagementCalculation({
-      friendly: friendlyUnit,
-      enemy: foeUnit,
+      friendly: friendlyUnitObj,
+      enemy: enemyUnitObj,
       friendlyMods,
       enemyMods,
     });
 
     setFriendlyData(results.friendly);
     setEnemyData(results.enemy);
+
+    // Store final HP in local states to carry to next round
+    setFriendlyHP(results.friendly.Fn);
+    setEnemyHP(results.enemy.Fn);
+  };
+
+  // If both sides remain alive, user can continue
+  const canContinue = Boolean(
+    friendlyData && enemyData && friendlyData.Fn > 0 && enemyData.Fn > 0
+  );
+
+  // Handler for continuing a new round
+  const handleContinueRound = () => {
+    // Bump round, reset steps, let user pick new answers
+    setRoundNumber((r) => r + 1);
+    setActive(0);
+    setLoaded(false);
+    setProgress(0);
+
+    // Optionally reset the toggles:
+    // setIsrConducted(false);
+    // setCommsDegraded(false);
+    // setHasCAS(false);
+    // setGpsJammed(false);
+    // setDefendingCritical(false);
+    // setTargetInOuterSOI(false);
+
+    // If you want to keep the same enemy selection, do nothing here. 
+    // If you want to force picking new enemy, call handleDeselectEnemy();
   };
 
   const friendlyUnitObject = selectedUnit
@@ -199,12 +253,15 @@ function Engagement() {
 
   return (
     <>
-      <Stepper
-        m="md"
-        active={active}
-      >
+      <Stepper m="md" active={active}>
         {/* STEP 0: Round Setup */}
-        <Stepper.Step icon={<IconSwords stroke={1.5} style={{ width: rem(27), height: rem(27) }} />}>
+        <Stepper.Step
+          icon={<IconSwords stroke={1.5} style={{ width: rem(27), height: rem(27) }} />}
+        >
+          <Text size="lg" fw={700} mb="md">
+            Round {roundNumber}
+          </Text>
+
           <UnitSelection
             friendlyUnit={friendlyUnitObject}
             enemyUnits={enemyUnits}
@@ -214,7 +271,7 @@ function Engagement() {
             handleDeselectEnemy={handleDeselectEnemy}
             handleStartEngagement={() => setActive(1)}
             inEngagement={active > 0}
-            round={1}
+            round={roundNumber}
           />
         </Stepper.Step>
 
@@ -240,16 +297,14 @@ function Engagement() {
             </Text>
 
             <Group mt="md" align="center" gap="xs">
-              <Text style={{
-                fontSize: '20px'
-              }}>Did you conduct ISR prior to moving land forces?</Text>
+              <Text style={{ fontSize: '20px' }}>
+                Did you conduct ISR prior to moving land forces?
+              </Text>
               <Tooltip label="ISR is helpful.">
                 <IconInfoCircle />
               </Tooltip>
             </Group>
-
             <Space h="sm" />
-
             <SegmentedControl
               size="xl"
               radius="xs"
@@ -263,16 +318,12 @@ function Engagement() {
             />
 
             <Group mt="md" align="center" gap="xs">
-              <Text style={{
-                fontSize: '20px'
-              }}>Are your Comms/Data degraded?</Text>
+              <Text style={{ fontSize: '20px' }}>Are your Comms/Data degraded?</Text>
               <Tooltip label="Comms info.">
                 <IconInfoCircle />
               </Tooltip>
             </Group>
-
             <Space h="sm" />
-
             <SegmentedControl
               size="xl"
               radius="xs"
@@ -287,15 +338,12 @@ function Engagement() {
           </Container>
         </Stepper.Step>
 
-
-
         {/* STEP 2: Engagement Phase */}
         <Stepper.Step
           label="Engagement"
           icon={<IconNumber2Small stroke={1.5} style={{ width: rem(80), height: rem(80) }} />}
         >
           <Container size="md" p="xl">
-            {/* Chunky Title for Engagement Phase */}
             <Text
               fw={900}
               tt="uppercase"
@@ -311,16 +359,13 @@ function Engagement() {
               Engagement Phase
             </Text>
 
-            {/* Group for CAS question */}
             <Group mt="md" align="center" gap="xs">
               <Text style={{ fontSize: '20px' }}>Do you have Close Air Support?</Text>
               <Tooltip label="CAS info.">
                 <IconInfoCircle />
               </Tooltip>
             </Group>
-
             <Space h="sm" />
-
             <SegmentedControl
               size="xl"
               radius="xs"
@@ -333,16 +378,13 @@ function Engagement() {
               onChange={(val) => setHasCAS(val === 'true')}
             />
 
-            {/* Group for GPS Jamming question with Tooltip */}
             <Group mt="md" align="center" gap="xs">
               <Text style={{ fontSize: '20px' }}>Is your GPS being jammed?</Text>
               <Tooltip label="GPS jamming info.">
                 <IconInfoCircle />
               </Tooltip>
             </Group>
-
             <Space h="sm" />
-
             <SegmentedControl
               size="xl"
               radius="xs"
@@ -378,16 +420,15 @@ function Engagement() {
               Accuracy Phase
             </Text>
 
-            {/* Defending Critical Location */}
             <Group mt="md" align="center" gap="xs">
-              <Text style={{ fontSize: '20px' }}>Is the target defending a critical location?</Text>
+              <Text style={{ fontSize: '20px' }}>
+                Is the target defending a critical location?
+              </Text>
               <Tooltip label="Location info.">
                 <IconInfoCircle />
               </Tooltip>
             </Group>
-
             <Space h="sm" />
-
             <SegmentedControl
               size="xl"
               radius="xs"
@@ -400,16 +441,15 @@ function Engagement() {
               onChange={(val) => setDefendingCritical(val === 'true')}
             />
 
-            {/* Target in Outer SOI */}
             <Group mt="md" align="center" gap="xs">
-              <Text style={{ fontSize: '20px' }}>Is the target in the outer half of your SOI?</Text>
+              <Text style={{ fontSize: '20px' }}>
+                Is the target in the outer half of your SOI?
+              </Text>
               <Tooltip label="SOI info.">
                 <IconInfoCircle />
               </Tooltip>
             </Group>
-
             <Space h="sm" />
-
             <SegmentedControl
               size="xl"
               radius="xs"
@@ -424,8 +464,7 @@ function Engagement() {
           </Container>
         </Stepper.Step>
 
-
-        {/* STEP 4: After Action Review (Summary) */}
+        {/* STEP 4: After Action Review */}
         <Stepper.Step
           icon={<IconHeartbeat stroke={1.5} style={{ width: rem(35), height: rem(35) }} />}
         >
@@ -445,22 +484,37 @@ function Engagement() {
               After Action Review
             </Text>
 
-            <AfterActionReview
-              friendlyData={friendlyData}
-              enemyData={enemyData}
-            />
+            <AfterActionReview friendlyData={friendlyData} enemyData={enemyData} />
 
+            {/* Only show "Continue" if both sides > 0. Otherwise end. */}
+            {friendlyData && enemyData && (
+              <Group mt="lg">
+                {canContinue ? (
+                  <Button color="blue" onClick={handleContinueRound}>
+                    Continue to Round {roundNumber + 1}
+                  </Button>
+                ) : (
+                  <Button color="red" onClick={handleExit}>
+                    Exit
+                  </Button>
+
+                )}
+              </Group>
+            )}
           </Container>
         </Stepper.Step>
-
       </Stepper>
 
-      {/* Step Navigation Buttons */}
+      {/* Navigation Buttons (Steps 1–3) */}
       {active > 0 && active < 4 && (
         <Group justify="center" mt="xl">
-          {/* Back Button (Steps 2-3) */}
+          {/* Back Button (Steps 2-3). 
+              If you want them to be able to go back to Step 0, conditionally show it also. */}
           {active > 1 && (
-            <Button variant="default" onClick={() => setActive((cur) => Math.max(1, cur - 1))}>
+            <Button
+              variant="default"
+              onClick={() => setActive((cur) => Math.max(1, cur - 1))}
+            >
               Back
             </Button>
           )}
@@ -473,16 +527,15 @@ function Engagement() {
                 if (!interval.active) {
                   interval.start(); // Start progress bar animation
                 }
-                doFinalize(); // Run engagement calculations
+                doFinalize();
               }}
               color="green"
-              disabled={progress !== 0} // Disable while animating
+              disabled={progress !== 0} // disable while animating
             >
               <div className={classes.label}>
                 {progress !== 0 ? 'Calculating Scores...' : loaded ? 'Complete' : 'Finalize'}
               </div>
-
-              {/* Fancy Progress Bar Animation */}
+              {/* Fancy progress bar */}
               {progress !== 0 && (
                 <Progress
                   style={{ height: '100%', width: '100%' }}
@@ -494,12 +547,11 @@ function Engagement() {
               )}
             </Button>
           ) : (
-            // Continue Button (Steps 1-2)
+            // "Continue" Button (Steps 1–2 only)
             <Button onClick={handleNextStep}>Continue</Button>
           )}
         </Group>
       )}
-
     </>
   );
 }

@@ -9,7 +9,7 @@ import {
   Select,
   Button,
   Group,
-  Progress
+  Progress,
 } from '@mantine/core';
 import { Unit } from '../types/unit';
 import getImageSRC from '../context/imageSrc';
@@ -24,27 +24,22 @@ interface UnitSelectionProps {
   handleDeselectEnemy: () => void;
   handleStartEngagement: () => void;
   inEngagement: boolean;
-  round: number;
+  round: number; // We can use this to check if we're beyond Round 1
 }
 
 /* ----------------------------------------------
    1) Convert readiness/skill strings to numeric
-   ---------------------------------------------- */
+---------------------------------------------- */
 function getReadinessProgress(unit_readiness: string | undefined): number {
   switch (unit_readiness) {
-    // For "Force Readiness"
     case 'Low':
       return 25;
     case 'Medium':
       return 50;
     case 'High':
       return 75;
-
-    // If your table includes skill states in readiness, or if you typed "Untrained" by mistake:
     case 'Untrained':
       return 0;
-
-    // Fallback
     default:
       return 0;
   }
@@ -55,40 +50,27 @@ function getForceSkill(unit_skill: string | undefined): number {
     case 'Untrained':
       return 0;
     case 'Basic':
-      return 33;  // your snippet used 33 for Basic
+      return 33;
     case 'Advanced':
-      return 66;  // 66 for Advanced
+      return 66;
     case 'Elite':
       return 100;
-
-    // fallback
     default:
       return 0;
   }
 }
 
 /* ----------------------------------------------
-   2) Custom Progress Bars 
-      - exactly as in your snippet with color
-      - 4 segments each
-   ---------------------------------------------- */
+   2) Custom Progress Bars
+---------------------------------------------- */
 
-// For READINESS
+// READINESS
 const CustomProgressBarReadiness = ({ value }: { value: number }) => {
   let color = 'blue';
-
-  // color logic for readiness
-  if (value === 0) {
-    color = 'red';
-  } else if (value <= 25) {
-    color = 'orange';
-  } else if (value <= 50) {
-    color = 'yellow';
-  } else if (value <= 75) {
-    color = 'green';
-  } else {
-    color = 'green';
-  }
+  if (value === 0) color = 'red';
+  else if (value <= 25) color = 'orange';
+  else if (value <= 50) color = 'yellow';
+  else color = 'green';
 
   return (
     <Group grow gap={5} mb="xs">
@@ -99,22 +81,14 @@ const CustomProgressBarReadiness = ({ value }: { value: number }) => {
   );
 };
 
-// For SKILL
+// SKILL
 const CustomProgressBarSkill = ({ value }: { value: number }) => {
   let color = 'blue';
-
-  // color logic for skill
-  if (value === 0) {
-    color = 'red';
-  } else if (value <= 33) {
-    color = 'orange';
-  } else if (value < 66) {
-    color = 'yellow';
-  } else if (value < 100) {
-    color = 'lime';
-  } else {
-    color = 'green';
-  }
+  if (value === 0) color = 'red';
+  else if (value <= 33) color = 'orange';
+  else if (value < 66) color = 'yellow';
+  else if (value < 100) color = 'lime';
+  else color = 'green';
 
   return (
     <Group grow gap={5} mb="xs">
@@ -126,25 +100,19 @@ const CustomProgressBarSkill = ({ value }: { value: number }) => {
   );
 };
 
-// Health can remain as you had, or you can also segment it if you like:
+// HEALTH
 const CustomProgressBarHealth = ({ value }: { value: number }) => {
   let color = 'blue';
-  if (value <= 25) {
-    color = 'red';
-  } else if (value <= 50) {
-    color = 'orange';
-  } else if (value <= 75) {
-    color = 'yellow';
-  } else {
-    color = 'green';
-  }
+  if (value <= 25) color = 'red';
+  else if (value <= 50) color = 'orange';
+  else if (value <= 75) color = 'yellow';
+  else color = 'green';
   return <Progress value={value} color={color} size="xl" mb="xs" />;
 };
 
 /* ----------------------------------------------
-   3) The UnitSelection component 
-      - uses the above functions/Progress Bars
-   ---------------------------------------------- */
+   3) The UnitSelection component
+---------------------------------------------- */
 const UnitSelection: React.FC<UnitSelectionProps> = ({
   friendlyUnit,
   enemyUnits,
@@ -154,11 +122,13 @@ const UnitSelection: React.FC<UnitSelectionProps> = ({
   handleDeselectEnemy,
   handleStartEngagement,
   inEngagement,
-  round
+  round,
 }) => {
-  // numeric health
   const friendlyHealth = friendlyUnit ? friendlyUnit.unit_health : 0;
   const enemyHealth = enemyUnit ? enemyUnit.unit_health : 0;
+
+  // Condition: if round > 1 => do not let user change enemy
+  const canChangeEnemy = round <= 1;
 
   return (
     <div>
@@ -200,16 +170,12 @@ const UnitSelection: React.FC<UnitSelectionProps> = ({
 
                 {/* READINESS */}
                 <strong>Force Readiness:</strong> {friendlyUnit.unit_readiness}
-                <CustomProgressBarReadiness
-                  value={getReadinessProgress(friendlyUnit.unit_readiness)}
-                />
+                <CustomProgressBarReadiness value={getReadinessProgress(friendlyUnit.unit_readiness)} />
                 <Space mb="5px" />
 
                 {/* SKILL */}
                 <strong>Force Skill:</strong> {friendlyUnit.unit_skill}
-                <CustomProgressBarSkill
-                  value={getForceSkill(friendlyUnit.unit_skill)}
-                />
+                <CustomProgressBarSkill value={getForceSkill(friendlyUnit.unit_skill)} />
                 <Space mb="5px" />
 
                 {/* HEALTH */}
@@ -225,6 +191,7 @@ const UnitSelection: React.FC<UnitSelectionProps> = ({
         {/* Enemy Unit Card or selection dropdown */}
         <Grid.Col span={4}>
           {enemyUnit ? (
+            // If an enemy is selected, show the card
             <Card withBorder radius="md" className={classes.card}>
               <Card.Section className={classes.imageSection} mt="md">
                 <Center>
@@ -250,16 +217,12 @@ const UnitSelection: React.FC<UnitSelectionProps> = ({
 
                 {/* READINESS */}
                 <strong>Force Readiness:</strong> {enemyUnit.unit_readiness}
-                <CustomProgressBarReadiness
-                  value={getReadinessProgress(enemyUnit.unit_readiness)}
-                />
+                <CustomProgressBarReadiness value={getReadinessProgress(enemyUnit.unit_readiness)} />
                 <Space mb="5px" />
 
                 {/* SKILL */}
                 <strong>Force Skill:</strong> {enemyUnit.unit_skill}
-                <CustomProgressBarSkill
-                  value={getForceSkill(enemyUnit.unit_skill)}
-                />
+                <CustomProgressBarSkill value={getForceSkill(enemyUnit.unit_skill)} />
                 <Space mb="5px" />
 
                 {/* HEALTH */}
@@ -268,29 +231,38 @@ const UnitSelection: React.FC<UnitSelectionProps> = ({
               </Text>
             </Card>
           ) : enemyUnits.length === 0 ? (
+            // If no enemy units exist
             <h2>No enemy units to select</h2>
-          ) : (
+          ) : canChangeEnemy ? (
+            // Round 1 => can pick an enemy
             <Select
               label="Select Enemy Unit"
               placeholder="Select Enemy Unit"
-              data={enemyUnits.map(eUnit => ({
+              data={enemyUnits.map((eUnit) => ({
                 value: eUnit.unit_id.toString(),
-                label: eUnit.unit_name
+                label: eUnit.unit_name,
               }))}
               searchable
               onChange={handleSelectEnemy}
             />
+          ) : (
+            // Round > 1 but no enemy is selected. This is an edge case (maybe should not happen).
+            <Text size="md" color="red">
+              Enemy selection locked; no enemy chosen.
+            </Text>
           )}
         </Grid.Col>
       </Grid>
 
       {/* Buttons */}
       <Group justify="center" mt="xl">
-        {(!inEngagement && enemyUnit) && (
-          <Button onClick={handleDeselectEnemy} disabled={!enemyUnit} color="red">
+        {/* Only show "Deselect" if it's round 1 and an enemy is selected */}
+        {round === 1 && enemyUnit && !inEngagement && (
+          <Button onClick={handleDeselectEnemy} color="red">
             Deselect Enemy Unit
           </Button>
         )}
+
         <Button onClick={handleStartEngagement} disabled={!enemyUnit}>
           {inEngagement ? 'Start Round' : 'Start Engagement'}
         </Button>
