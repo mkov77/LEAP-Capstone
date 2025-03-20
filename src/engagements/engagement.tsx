@@ -8,7 +8,6 @@ import {
   Text,
   Group,
   rem,
-  Grid,
   SegmentedControl,
   Tooltip,
   Progress,
@@ -164,12 +163,12 @@ function Engagement() {
    */
   const doFinalize = () => {
     if (!selectedUnit || !enemyUnit) return;
-
+  
     const friendlyUnitObj = units.find((u) => u.unit_id === selectedUnit);
     const enemyUnitObj = enemyUnits.find((u) => u.unit_id === enemyUnit.unit_id);
     if (!friendlyUnitObj || !enemyUnitObj) return;
-
-    // Build "friendlyMods" from user states
+  
+    // Restore friendlyMods
     const friendlyMods: UnitModifiers = {
       roleType: 'Combat',
       unitSize: 'Battalion',
@@ -177,7 +176,7 @@ function Engagement() {
       forceMobility: 'Mobile (foot)',
       forceReadiness: 'High',
       forceSkill: 'Basic',
-
+  
       didISR: isrConducted,
       commsGood: !commsDegraded,
       hasCAS,
@@ -185,8 +184,8 @@ function Engagement() {
       defendingCritical,
       targetInOuterSOI,
     };
-
-    // Enemy side (could expand states for enemy if you like)
+  
+    // Restore enemyMods
     const enemyMods: UnitModifiers = {
       roleType: 'Combat',
       unitSize: 'Battalion',
@@ -194,7 +193,7 @@ function Engagement() {
       forceMobility: 'Mobile (foot)',
       forceReadiness: 'High',
       forceSkill: 'Basic',
-
+  
       didISR: false,
       commsGood: true,
       hasCAS: false,
@@ -202,25 +201,27 @@ function Engagement() {
       defendingCritical: false,
       targetInOuterSOI: false,
     };
-
-    // Overwrite the unit's HP with current HP if we already have it
-    if (friendlyHP != null) friendlyUnitObj.unit_health = friendlyHP;
-    if (enemyHP != null) enemyUnitObj.unit_health = enemyHP;
-
+  
+    // Set Initial Health (Only if not already set)
+    if (friendlyHP === null) setFriendlyHP(friendlyUnitObj.unit_health);
+    if (enemyHP === null) setEnemyHP(enemyUnitObj.unit_health);
+  
+    // Run Engagement Calculation
     const results: CalculationResult = runEngagementCalculation({
       friendly: friendlyUnitObj,
       enemy: enemyUnitObj,
-      friendlyMods,
-      enemyMods,
+      friendlyMods,  // ✅ Now Defined
+      enemyMods,     // ✅ Now Defined
     });
-
+  
     setFriendlyData(results.friendly);
     setEnemyData(results.enemy);
-
-    // Store final HP in local states to carry to next round
-    setFriendlyHP(results.friendly.Fn);
-    setEnemyHP(results.enemy.Fn);
+  
+    // Subtract Damage from Total Health-- Check this!!
+    setFriendlyHP((prevHP) => Math.max(0, (prevHP ?? friendlyUnitObj.unit_health) - results.enemy.D));
+    setEnemyHP((prevHP) => Math.max(0, (prevHP ?? enemyUnitObj.unit_health) - results.friendly.D));
   };
+  
 
   // If both sides remain alive, user can continue
   const canContinue = Boolean(
