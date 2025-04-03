@@ -274,7 +274,10 @@ function Engagement() {
             handleStartEngagement={() => setActive(roundNumber === 1 ? 1 : 2)}
             inEngagement={active > 0}
             round={roundNumber}
+            buttonLabel={roundNumber === 1 ? 'Start Engagement' : 'Start Round'} // <-- this line
           />
+
+
 
         </Stepper.Step>
 
@@ -303,7 +306,7 @@ function Engagement() {
               <Text style={{ fontSize: '20px' }}>
                 Did you conduct ISR prior to moving land forces?
               </Text>
-              <Tooltip label="ISR is helpful.">
+              <Tooltip label="Helps you spot the enemy more easily.">
                 <IconInfoCircle />
               </Tooltip>
             </Group>
@@ -322,7 +325,7 @@ function Engagement() {
 
             <Group mt="md" align="center" gap="xs">
               <Text style={{ fontSize: '20px' }}>Are your Comms/Data degraded?</Text>
-              <Tooltip label="Comms info.">
+              <Tooltip label="Makes it harder to detect the enemy.">
                 <IconInfoCircle />
               </Tooltip>
             </Group>
@@ -364,7 +367,7 @@ function Engagement() {
 
             <Group mt="md" align="center" gap="xs">
               <Text style={{ fontSize: '20px' }}>Do you have Close Air Support?</Text>
-              <Tooltip label="CAS info.">
+              <Tooltip label="Improves your accuracy and damage.">
                 <IconInfoCircle />
               </Tooltip>
             </Group>
@@ -383,7 +386,7 @@ function Engagement() {
 
             <Group mt="md" align="center" gap="xs">
               <Text style={{ fontSize: '20px' }}>Is your GPS being jammed?</Text>
-              <Tooltip label="GPS jamming info.">
+              <Tooltip label="Makes your weapons less accurate.">
                 <IconInfoCircle />
               </Tooltip>
             </Group>
@@ -427,7 +430,7 @@ function Engagement() {
               <Text style={{ fontSize: '20px' }}>
                 Is the target defending a critical location?
               </Text>
-              <Tooltip label="Location info.">
+              <Tooltip label="Enemy is harder to hit when guarding key areas.">
                 <IconInfoCircle />
               </Tooltip>
             </Group>
@@ -448,7 +451,7 @@ function Engagement() {
               <Text style={{ fontSize: '20px' }}>
                 Is the target in the outer half of your SOI?
               </Text>
-              <Tooltip label="SOI info.">
+              <Tooltip label="Harder to hit targets farther away.">
                 <IconInfoCircle />
               </Tooltip>
             </Group>
@@ -513,7 +516,7 @@ function Engagement() {
         <Group justify="center" mt="xl">
           {/* Back Button (Steps 2-3). 
               If you want them to be able to go back to Step 0, conditionally show it also. */}
-          {active > 1 && (
+          {active > 1 && !(active === 2 && roundNumber > 1) && (
             <Button
               variant="default"
               onClick={() => setActive((cur) => Math.max(1, cur - 1))}
@@ -521,7 +524,6 @@ function Engagement() {
               Back
             </Button>
           )}
-
           {/* Finalize Button (Only on Step 3) */}
           {active === 3 ? (
             <Button

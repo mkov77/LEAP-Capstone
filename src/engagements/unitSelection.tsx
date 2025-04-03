@@ -25,6 +25,7 @@ interface UnitSelectionProps {
   handleStartEngagement: () => void;
   inEngagement: boolean;
   round: number; // We can use this to check if we're beyond Round 1
+  buttonLabel?: string;
 }
 
 /* ----------------------------------------------
@@ -123,6 +124,7 @@ const UnitSelection: React.FC<UnitSelectionProps> = ({
   handleStartEngagement,
   inEngagement,
   round,
+  buttonLabel,
 }) => {
   const friendlyHealth = friendlyUnit ? friendlyUnit.unit_health : 0;
   const enemyHealth = enemyUnit ? enemyUnit.unit_health : 0;
@@ -264,8 +266,10 @@ const UnitSelection: React.FC<UnitSelectionProps> = ({
         )}
 
         <Button onClick={handleStartEngagement} disabled={!enemyUnit}>
-          {inEngagement ? 'Start Round' : 'Start Engagement'}
+          {buttonLabel || 'Start Engagement'}
         </Button>
+
+
       </Group>
     </div>
   );
