@@ -41,9 +41,9 @@ const AfterActionReview: React.FC<AfterActionReviewProps> = ({
   let firstStrikeText = '';
   if (friendlyData && enemyData) {
     if (friendlyData.P > enemyData.P) {
-      firstStrikeText = 'Friendly Unit achieved First Strike!';
+      firstStrikeText = 'First Strike: FRIENDLY';
     } else if (enemyData.P > friendlyData.P) {
-      firstStrikeText = 'Enemy Unit achieved First Strike!';
+      firstStrikeText = 'First Strike: ENEMY';
     } else {
       firstStrikeText = 'Neither unit achieved a clear first strike.';
     }
@@ -54,10 +54,6 @@ const AfterActionReview: React.FC<AfterActionReviewProps> = ({
       <Card shadow="sm" padding="md" radius="md" withBorder style={{ width: '650px', textAlign: 'center' }}>
         <Card.Section withBorder inheritPadding py="xs">
           <Text fw={700} size="lg">After Action Review</Text>
-          {/* Display first strike information */}
-          <Text fw={700} size="md" mt="xs">
-            {firstStrikeText}
-          </Text>
         </Card.Section>
 
         {/* Phase Scores */}
@@ -69,15 +65,48 @@ const AfterActionReview: React.FC<AfterActionReviewProps> = ({
             { name: 'Accuracy', friendly: accuracyScoreFriendly, enemy: accuracyScoreEnemy }
           ].map(({ name, friendly, enemy }) => (
             <Container key={name} mt="md" className="progress-container">
-              <Text fw={500}>{name}</Text>
-
-              <Tooltip label={`${friendly.toFixed(0)}%`} position="top">
-                <Progress size={20} radius="md" value={friendly} color="#3d85c6" style={{ marginBottom: '8px' }} />
-              </Tooltip>
-
-              <Tooltip label={`${enemy.toFixed(0)}%`} position="top">
-                <Progress size={20} radius="md" value={enemy} color="#c1432d" style={{ marginBottom: '8px' }} />
-              </Tooltip>
+              <Text mt="xs" fw={700} tt="uppercase">{name}</Text>
+              {name === 'Detection' && (
+                <Text mt="xs" fw={500}>
+                  {firstStrikeText}
+                </Text>
+              )}
+              {/* Friendly Progress Bar with overlay text */}
+              <Container style={{ position: 'relative', marginBottom: '8px' }}>
+                <Progress size={20} radius="sm" value={friendly} color="#3d85c6" />
+                <Text
+                  size="xs"
+                  style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    color: 'white',
+                    fontWeight: 400,
+                    zIndex: 1,
+                  }}
+                >
+                  {friendly.toFixed(0)}%
+                </Text>
+              </Container>
+              {/* Enemy Progress Bar with overlay text */}
+              <Container style={{ position: 'relative', marginBottom: '8px' }}>
+                <Progress size={20} radius="sm" value={enemy} color="#c1432d" />
+                <Text
+                  size="xs"
+                  style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    color: 'white',
+                    fontWeight: 400,
+                    zIndex: 1,
+                  }}
+                >
+                  {enemy.toFixed(0)}%
+                </Text>
+              </Container>
             </Container>
           ))}
         </Card.Section>
@@ -92,7 +121,7 @@ const AfterActionReview: React.FC<AfterActionReviewProps> = ({
             </Group>
 
             <Tooltip label={`HP: ${friendlyHealth.toFixed(0)}`} position="top">
-              <Progress size={20} radius="md" value={friendlyHealth} color="#3d85c6" style={{ marginBottom: '8px' }} />
+              <Progress size={20} radius="sm" value={friendlyHealth} color="#3d85c6" style={{ marginBottom: '8px' }} />
             </Tooltip>
 
             <Group justify="space-between">
@@ -101,7 +130,7 @@ const AfterActionReview: React.FC<AfterActionReviewProps> = ({
             </Group>
 
             <Tooltip label={`HP: ${enemyHealth.toFixed(0)}`} position="top">
-              <Progress size={20} radius="md" value={enemyHealth} color="#c1432d" style={{ marginBottom: '8px' }} />
+              <Progress size={20} radius="sm" value={enemyHealth} color="#c1432d" style={{ marginBottom: '8px' }} />
             </Tooltip>
           </Container>
         </Card.Section>
