@@ -37,11 +37,27 @@ const AfterActionReview: React.FC<AfterActionReviewProps> = ({
   const engagementScoreEnemy = (enemyData?.Ph ?? 0) * 100;
   const accuracyScoreEnemy = (enemyData?.d_r ?? 0) * 100;
 
+  // Determine which unit achieved first strike based on detection probability (P)
+  let firstStrikeText = '';
+  if (friendlyData && enemyData) {
+    if (friendlyData.P > enemyData.P) {
+      firstStrikeText = 'Friendly Unit achieved First Strike!';
+    } else if (enemyData.P > friendlyData.P) {
+      firstStrikeText = 'Enemy Unit achieved First Strike!';
+    } else {
+      firstStrikeText = 'Neither unit achieved a clear first strike.';
+    }
+  }
+
   return (
     <Group justify="center" mt="xl">
       <Card shadow="sm" padding="md" radius="md" withBorder style={{ width: '650px', textAlign: 'center' }}>
         <Card.Section withBorder inheritPadding py="xs">
           <Text fw={700} size="lg">After Action Review</Text>
+          {/* Display first strike information */}
+          <Text fw={700} size="md" mt="xs">
+            {firstStrikeText}
+          </Text>
         </Card.Section>
 
         {/* Phase Scores */}

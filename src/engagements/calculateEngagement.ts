@@ -85,29 +85,29 @@ const BASE_VALUES: Record<string, {
   H: number;
   D_mi: number;
 }> = {
-  "Infantry":                       { w: 12, A: 45, t: 1,  r: 8,  v: 1,  rho: 8,  b: 10, H: 100, D_mi: 25 },
-  "Reconnaissance":                 { w: 12, A: 30, t: 1,  r: 3,  v: 1,  rho: 18, b: 15, H: 100, D_mi: 10 },
-  "Armored Mechanized":             { w: 17, A: 25, t: 1,  r: 15, v: 2,  rho: 10, b: 10, H: 100, D_mi: 35 },
-  "Combined Arms":                  { w: 15, A: 50, t: 1,  r: 8,  v: 1,  rho: 5,  b: 10, H: 100, D_mi: 35 },
-  "Armored Mechanized Tracked":     { w: 17, A: 20, t: 1,  r: 10, v: 2,  rho: 6,  b: 15, H: 100, D_mi: 35 },
-  "Field Artillery":                { w: 18, A: 15, t: 1,  r: 20, v: 2,  rho: 6,  b: 15, H: 100, D_mi: 40 },
-  "Self-propelled":                 { w: 18, A: 22, t: 1,  r: 12, v: 2,  rho: 6,  b: 15, H: 100, D_mi: 35 },
-  "Electronic Warfare":             { w: 20, A: 10, t: 1,  r: 15, v: 0,  rho: 0,  b: 30, H: 100, D_mi: 0  },
-  "Signal":                         { w: 20, A: 40, t: 1,  r: 5,  v: 0,  rho: 0,  b: 30, H: 100, D_mi: 5  },
-  "Special Operations Forces":      { w: 5,  A: 80, t: 1,  r: 7,  v: 1,  rho: 4,  b: 10, H: 100, D_mi: 25 },
-  "Ammunition":                     { w: 10, A: 10, t: 1,  r: 10, v: 0,  rho: 0,  b: 0,  H: 100, D_mi: 0  },
-  "Air Defense":                    { w: 30, A: 10, t: 1,  r: 15, v: 1,  rho: 5,  b: 40, H: 100, D_mi: 30 },
-  "Engineer":                       { w: 17, A: 20, t: 1,  r: 5,  v: 1,  rho: 15, b: 15, H: 100, D_mi: 18 },
-  "Air Assault":                    { w: 15, A: 50, t: 1,  r: 8,  v: 1,  rho: 5,  b: 10, H: 100, D_mi: 35 },
-  "Medical Treatment Facility":     { w: 12, A: 15, t: 0,  r: 20, v: 0,  rho: 0,  b: 0,  H: 100, D_mi: 0  },
-  "Aviation Rotary Wing":           { w: 15, A: 50, t: 1,  r: 10, v: 1,  rho: 0,  b: 20, H: 100, D_mi: 20 },
-  "Combat Support":                 { w: 17, A: 20, t: 1,  r: 5,  v: 1,  rho: 15, b: 15, H: 100, D_mi: 15 },
-  "Sustainment":                    { w: 17, A: 20, t: 1,  r: 5,  v: 1,  rho: 15, b: 15, H: 100, D_mi: 15 },
-  "Unmanned Aerial Systems":        { w: 3,  A: 10, t: 1,  r: 8,  v: 1,  rho: 4,  b: 20, H: 100, D_mi: 15 },
-  "Combat Service Support":         { w: 10, A: 10, t: 1,  r: 12, v: 0,  rho: 0,  b: 0,  H: 100, D_mi: 0  },
-  "Petroleum, Oil and Lubricants":  { w: 10, A: 15, t: 0,  r: 12, v: 0,  rho: 0,  b: 0,  H: 100, D_mi: 0  },
-  "Sea Port":                       { w: 20, A: 10, t: 0,  r: 12, v: 0,  rho: 0,  b: 0,  H: 100, D_mi: 0  },
-  "Railhead":                       { w: 20, A: 10, t: 1,  r: 11, v: 0,  rho: 0,  b: 0,  H: 100, D_mi: 0  },
+  "Infantry": { w: 12, A: 45, t: 1, r: 8, v: 1, rho: 8, b: 10, H: 100, D_mi: 25 },
+  "Reconnaissance": { w: 12, A: 30, t: 1, r: 3, v: 1, rho: 18, b: 15, H: 100, D_mi: 10 },
+  "Armored Mechanized": { w: 17, A: 25, t: 1, r: 15, v: 2, rho: 10, b: 10, H: 100, D_mi: 35 },
+  "Combined Arms": { w: 15, A: 50, t: 1, r: 8, v: 1, rho: 5, b: 10, H: 100, D_mi: 35 },
+  "Armored Mechanized Tracked": { w: 17, A: 20, t: 1, r: 10, v: 2, rho: 6, b: 15, H: 100, D_mi: 35 },
+  "Field Artillery": { w: 18, A: 15, t: 1, r: 20, v: 2, rho: 6, b: 15, H: 100, D_mi: 40 },
+  "Self-propelled": { w: 18, A: 22, t: 1, r: 12, v: 2, rho: 6, b: 15, H: 100, D_mi: 35 },
+  "Electronic Warfare": { w: 20, A: 10, t: 1, r: 15, v: 0, rho: 0, b: 30, H: 100, D_mi: 0 },
+  "Signal": { w: 20, A: 40, t: 1, r: 5, v: 0, rho: 0, b: 30, H: 100, D_mi: 5 },
+  "Special Operations Forces": { w: 5, A: 80, t: 1, r: 7, v: 1, rho: 4, b: 10, H: 100, D_mi: 25 },
+  "Ammunition": { w: 10, A: 10, t: 1, r: 10, v: 0, rho: 0, b: 0, H: 100, D_mi: 0 },
+  "Air Defense": { w: 30, A: 10, t: 1, r: 15, v: 1, rho: 5, b: 40, H: 100, D_mi: 30 },
+  "Engineer": { w: 17, A: 20, t: 1, r: 5, v: 1, rho: 15, b: 15, H: 100, D_mi: 18 },
+  "Air Assault": { w: 15, A: 50, t: 1, r: 8, v: 1, rho: 5, b: 10, H: 100, D_mi: 35 },
+  "Medical Treatment Facility": { w: 12, A: 15, t: 0, r: 20, v: 0, rho: 0, b: 0, H: 100, D_mi: 0 },
+  "Aviation Rotary Wing": { w: 15, A: 50, t: 1, r: 10, v: 1, rho: 0, b: 20, H: 100, D_mi: 20 },
+  "Combat Support": { w: 17, A: 20, t: 1, r: 5, v: 1, rho: 15, b: 15, H: 100, D_mi: 15 },
+  "Sustainment": { w: 17, A: 20, t: 1, r: 5, v: 1, rho: 15, b: 15, H: 100, D_mi: 15 },
+  "Unmanned Aerial Systems": { w: 3, A: 10, t: 1, r: 8, v: 1, rho: 4, b: 20, H: 100, D_mi: 15 },
+  "Combat Service Support": { w: 10, A: 10, t: 1, r: 12, v: 0, rho: 0, b: 0, H: 100, D_mi: 0 },
+  "Petroleum, Oil and Lubricants": { w: 10, A: 15, t: 0, r: 12, v: 0, rho: 0, b: 0, H: 100, D_mi: 0 },
+  "Sea Port": { w: 20, A: 10, t: 0, r: 12, v: 0, rho: 0, b: 0, H: 100, D_mi: 0 },
+  "Railhead": { w: 20, A: 10, t: 1, r: 11, v: 0, rho: 0, b: 0, H: 100, D_mi: 0 },
 };
 
 const DEFAULT_BASE = {
@@ -231,9 +231,9 @@ function applyTableModifiers(
   //    commsGood => t +25% or -25%
   //
   if (mods.didISR) {
-    t *= 1.25; 
+    t *= 1.25;
   } else {
-    t *= 0.75; 
+    t *= 0.75;
   }
 
   if (mods.commsGood) {
@@ -279,9 +279,9 @@ export function runEngagementCalculation(params: {
   enemy: Unit;
   friendlyMods: UnitModifiers;
   enemyMods: UnitModifiers;
+  applyFirstStrike?: boolean; // New optional flag
 }): CalculationResult {
-
-  const { friendly, enemy, friendlyMods, enemyMods } = params;
+  const { friendly, enemy, friendlyMods, enemyMods, applyFirstStrike = true } = params;
 
   // 1) Grab base table rows
   const friendBase = BASE_VALUES[friendly.unit_type] ?? DEFAULT_BASE;
@@ -291,7 +291,7 @@ export function runEngagementCalculation(params: {
   const fFinal = applyTableModifiers(friendBase, friendlyMods);
   const eFinal = applyTableModifiers(foeBase, enemyMods);
 
-  // 3) For convenience, rename v -> sigma
+  // 3) Rename v -> sigma for convenience
   const sigmaF = fFinal.v;
   const sigmaE = eFinal.v;
 
@@ -299,12 +299,7 @@ export function runEngagementCalculation(params: {
   const PF = 1 - Math.exp((-fFinal.w * fFinal.t) / fFinal.A);
   const PE = 1 - Math.exp((-eFinal.w * eFinal.t) / eFinal.A);
 
-  // 5) We define final radius from area or just use r from table (your call).
-  //    If you prefer "r = sqrt(A / pi)" do that here:
-  //    let rF = Math.sqrt(fFinal.A / Math.PI);
-  //    let rE = Math.sqrt(eFinal.A / Math.PI);
-  //    Or just use rF = fFinal.r if you want the table's r.
-
+  // 5) Compute radius (using table value here)
   const rF = fFinal.r;
   const rE = eFinal.r;
 
@@ -316,19 +311,37 @@ export function runEngagementCalculation(params: {
   const drF = Math.exp(-(rF ** 2) / (2 * fFinal.b ** 2));
   const drE = Math.exp(-(rE ** 2) / (2 * eFinal.b ** 2));
 
-  // 8) Health from DB (if zero or negative, fallback to base H)
-  const Fi = friendly.unit_health > 0 ? friendly.unit_health : fFinal.H;
-  const Ei = enemy.unit_health > 0 ? enemy.unit_health : eFinal.H;
+  // 8) Determine initial health values (using Unit data or base H)
+  let Fi = friendly.unit_health > 0 ? friendly.unit_health : fFinal.H;
+  let Ei = enemy.unit_health > 0 ? enemy.unit_health : eFinal.H;
 
-  // 9) Damage inflicted
-  let FD = fFinal.D_mi * PhF * drF;  // damage by friendly on enemy
-  FD = Math.min(FD, Ei);            // clamp so we don't exceed enemy HP
+  // ---- FIRST STRIKE LOGIC (applied only in Round 1) ----
+  if (applyFirstStrike) {
+    const firstStrikeFactor = 0.3; // Adjust this factor based on your excel parameters
+    if (PF > PE) {
+      // Friendly gets first strike—reduce enemy's health before damage calculation
+      const firstStrikeDamage = firstStrikeFactor * (fFinal.D_mi * PhF * drF);
+      Ei = Math.max(0, Ei - firstStrikeDamage);
+    } else if (PE > PF) {
+      // Enemy gets first strike—reduce friendly's health before damage calculation
+      const firstStrikeDamage = firstStrikeFactor * (eFinal.D_mi * PhE * drE);
+      Fi = Math.max(0, Fi - firstStrikeDamage);
+    }
+  }
+  // -------------------------------------------------------
 
-  let ED = eFinal.D_mi * PhE * drE; // damage by enemy on friendly
-  ED = Math.min(ED, Fi);           // clamp so we don't exceed friendly HP
+  // 9) Calculate damage inflicted based on the updated health values, including random variation
+  const randomFactorFriendly = 0.8 + Math.random() * 0.4; // range is 0.8 to 1.2
+  const randomFactorEnemy = 0.8 + Math.random() * 0.4;    
 
-  // 10) Final HP
-  const FFn = Math.max(0, Fi - ED); 
+  let FD = fFinal.D_mi * PhF * drF * randomFactorFriendly;  // Damage by friendly on enemy with random variation
+  FD = Math.min(FD, Ei);                                      // Clamp so we don't exceed enemy HP
+
+  let ED = eFinal.D_mi * PhE * drE * randomFactorEnemy;       // Damage by enemy on friendly with random variation
+  ED = Math.min(ED, Fi);                                      // Clamp so we don't exceed friendly HP
+
+  // 10) Final Health after both damage calculations
+  const FFn = Math.max(0, Fi - ED);
   const EFn = Math.max(0, Ei - FD);
 
   // 11) Build final EngagementData objects
@@ -343,9 +356,9 @@ export function runEngagementCalculation(params: {
     b: fFinal.b,
     d_r: drF,
     d_mi: fFinal.D_mi,
-    D: FD,    // how much damage this side inflicted on the enemy
-    Fi: Fi,   // initial HP
-    Fn: FFn,  // final HP after taking ED damage from enemy
+    D: FD,    // Damage inflicted on enemy
+    Fi: Fi,   // Health after first strike (if any)
+    Fn: FFn,  // Final health after enemy's damage
   };
 
   const enemyData: EngagementData = {
@@ -359,7 +372,7 @@ export function runEngagementCalculation(params: {
     b: eFinal.b,
     d_r: drE,
     d_mi: eFinal.D_mi,
-    D: ED,    // how much damage enemy inflicted on friendly
+    D: ED,    // Damage inflicted on friendly
     Fi: Ei,
     Fn: EFn,
   };

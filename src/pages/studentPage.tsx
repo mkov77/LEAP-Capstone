@@ -124,8 +124,8 @@ function App() {
             onChange={handleViewChange}
             data={[
               { label: 'Unit Selection', value: 'Unit Selection' },
-              { label: 'Hierarchy View', value: 'Hierarchy View' },
-              { label: 'After Action Reviews', value: 'After Action Reviews' }
+              { label: 'Force Structure', value: 'Hierarchy View' },
+              // { label: 'After Action Reviews', value: 'After Action Reviews' }
             ]}
             size = 'md'
             style={{ margin: 15 }}
