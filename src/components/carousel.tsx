@@ -23,10 +23,6 @@ const unitTypes = [
   {
     label: 'JFSOC',
     value: 'Special Operations Forces'
-  },
-  {
-    label: 'C2',
-    value: 'Command and Control'
   }
 ];
 

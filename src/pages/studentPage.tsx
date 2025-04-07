@@ -108,7 +108,7 @@ function App() {
           </div> */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
 
-            
+
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
 
               {sectionId && (
@@ -116,20 +116,20 @@ function App() {
                   Scenerio: <strong>{sectionId}</strong>
                 </h1>
               )}
-              
+
             </div>
 
             <SegmentedControl
-            value={view}
-            onChange={handleViewChange}
-            data={[
-              { label: 'Unit Selection', value: 'Unit Selection' },
-              { label: 'Force Structure', value: 'Hierarchy View' },
-              // { label: 'After Action Reviews', value: 'After Action Reviews' }
-            ]}
-            size = 'md'
-            style={{ margin: 15 }}
-          />
+              value={view}
+              onChange={handleViewChange}
+              data={[
+                { label: 'Unit Selection', value: 'Unit Selection' },
+                { label: 'Force Structure', value: 'Hierarchy View' },
+                // { label: 'After Action Reviews', value: 'After Action Reviews' }
+              ]}
+              size='md'
+              style={{ margin: 15 }}
+            />
             {/* Toggle between selection and hierarchy view */}
             {/* <div>
               <Button onClick={() => setHierarchyToggle(!hierarchyToggle)}>
@@ -140,15 +140,15 @@ function App() {
 
           <div style={{ width: '250px' }}>
 
-          {/* Unit Search Bar */}
-          {!hierarchyToggle && (
-                <TextInput
-                  placeholder='Search'
-                  style={{ width: '100%' }}
-                  value={search}
-                  onChange={handleChange}
-                />
-              )}
+            {/* Unit Search Bar */}
+            {!hierarchyToggle && (
+              <TextInput
+                placeholder='Search'
+                style={{ width: '100%' }}
+                value={search}
+                onChange={handleChange}
+              />
+            )}
           </div>
 
           <div className="App">

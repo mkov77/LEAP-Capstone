@@ -40,7 +40,8 @@ const SearchResultList: React.FC<Props> = (props) => {
 
   // Filter units based on search term
   const filteredUnits = units.filter(unit =>
-    unit.unit_name.toLowerCase().includes(search.toLowerCase())
+    unit.unit_name.toLowerCase().includes(search.toLowerCase()) &&
+    unit.unit_type !== "Command and Control"
   );
 
   // Render search
