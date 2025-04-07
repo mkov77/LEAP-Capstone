@@ -6,7 +6,7 @@ import {
   Card,
   Container,
   Progress,
-  Tooltip
+  Tooltip,
 } from '@mantine/core';
 import { EngagementData } from './calculateEngagement';
 
@@ -23,10 +23,14 @@ const AfterActionReview: React.FC<AfterActionReviewProps> = ({
   const enemyUnitName = 'Enemy ID';
 
   // Current Health and Damage
-  const friendlyHealth = friendlyData?.Fn ?? 40;
-  const enemyHealth = enemyData?.Fn ?? 51.85;
-  const friendlyDamage = friendlyData?.D ?? 18.15;
-  const enemyDamage = enemyData?.D ?? 11.36;
+  const friendlyHealth = friendlyData?.Fn ?? 1;
+  const enemyHealth = enemyData?.Fn ?? 1;
+  const friendlyDamage = friendlyData?.D ?? 1;
+  const enemyDamage = enemyData?.D ?? 1;
+
+  // Round health values consistently
+  const friendlyHealthRounded = Math.round(friendlyHealth);
+  const enemyHealthRounded = Math.round(enemyHealth);
 
   // Compute Phase Scores
   const detectionScoreFriendly = (friendlyData?.P ?? 0) * 100;
@@ -120,8 +124,8 @@ const AfterActionReview: React.FC<AfterActionReviewProps> = ({
               <Text fw={500} size="sm">{`-${friendlyDamage.toFixed(0)}`}</Text>
             </Group>
 
-            <Tooltip label={`HP: ${friendlyHealth.toFixed(0)}`} position="top">
-              <Progress size={20} radius="sm" value={friendlyHealth} color="#3d85c6" style={{ marginBottom: '8px' }} />
+            <Tooltip label={`HP: ${friendlyHealthRounded}`} position="top">
+              <Progress size={20} radius="sm" value={friendlyHealthRounded} color="#3d85c6" style={{ marginBottom: '8px' }} />
             </Tooltip>
 
             <Group justify="space-between">
@@ -129,8 +133,8 @@ const AfterActionReview: React.FC<AfterActionReviewProps> = ({
               <Text fw={500} size="sm">{`-${enemyDamage.toFixed(0)}`}</Text>
             </Group>
 
-            <Tooltip label={`HP: ${enemyHealth.toFixed(0)}`} position="top">
-              <Progress size={20} radius="sm" value={enemyHealth} color="#c1432d" style={{ marginBottom: '8px' }} />
+            <Tooltip label={`HP: ${enemyHealthRounded}`} position="top">
+              <Progress size={20} radius="sm" value={enemyHealthRounded} color="#c1432d" style={{ marginBottom: '8px' }} />
             </Tooltip>
           </Container>
         </Card.Section>
