@@ -240,7 +240,9 @@ const UnitSelection: React.FC<UnitSelectionProps> = ({
             <Select
               label="Select Enemy Unit"
               placeholder="Select Enemy Unit"
-              data={enemyUnits.map((eUnit) => ({
+              data={enemyUnits
+                .filter((eUnit) => eUnit.unit_type !== "Command and Control")
+                .map((eUnit) => ({
                 value: eUnit.unit_id.toString(),
                 label: eUnit.unit_name,
               }))}

@@ -11,9 +11,9 @@ app.use(express.json());
 const pool = new Pool({
   user: 'postgres',
   host: 'localhost', // This changes between 'postgres' for docker and 'localhost' for non-containerized
-  database: 'leap',
+  database: 'LEAP',
   password: 'admin',
-  port: 5433,
+  port: 5432,
 });
 
 // Endpoint to fetch data from 'sections' table

@@ -294,22 +294,30 @@ export function runEngagementCalculation(params: {
   // 3) Rename v -> sigma for convenience
   const sigmaF = fFinal.v;
   const sigmaE = eFinal.v;
+  // Ensure sigma is not zero to avoid division by zero
+  const safeSigmaF = sigmaF !== 0 ? sigmaF : 0.01;
+  const safeSigmaE = sigmaE !== 0 ? sigmaE : 0.01;
 
   // 4) Detection Probability (example formula)
-  const PF = 1 - Math.exp((-fFinal.w * fFinal.t) / fFinal.A);
-  const PE = 1 - Math.exp((-eFinal.w * eFinal.t) / eFinal.A);
+  const safeAF = fFinal.A !== 0 ? fFinal.A : 0.01; // fallback value if A is 0
+  const PF = 1 - Math.exp((-fFinal.w * fFinal.t) / safeAF);
+
+  const safeAE = eFinal.A !== 0 ? eFinal.A : 0.01;
+  const PE = 1 - Math.exp((-eFinal.w * eFinal.t) / safeAE);
 
   // 5) Compute radius (using table value here)
   const rF = fFinal.r;
   const rE = eFinal.r;
 
-  // 6) Probability of Hit
-  const PhF = 1 - Math.exp(-(rF ** 2) / (2 * sigmaF ** 2));
-  const PhE = 1 - Math.exp(-(rE ** 2) / (2 * sigmaE ** 2));
+  // 6) Probability of Hit using safe sigma values
+  const PhF = 1 - Math.exp(-(rF ** 2) / (2 * safeSigmaF ** 2));
+  const PhE = 1 - Math.exp(-(rE ** 2) / (2 * safeSigmaE ** 2));
 
-  // 7) Attacker Accuracy
-  const drF = Math.exp(-(rF ** 2) / (2 * fFinal.b ** 2));
-  const drE = Math.exp(-(rE ** 2) / (2 * eFinal.b ** 2));
+  // 7) Attacker Accuracy: use safe b values to avoid division by zero
+  const safeBF = fFinal.b !== 0 ? fFinal.b : 0.01;
+  const safeBE = eFinal.b !== 0 ? eFinal.b : 0.01;
+  const drF = Math.exp(-(rF ** 2) / (2 * safeBF ** 2));
+  const drE = Math.exp(-(rE ** 2) / (2 * safeBE ** 2));
 
   // 8) Determine initial health values (using Unit data or base H)
   let Fi = friendly.unit_health > 0 ? friendly.unit_health : fFinal.H;
