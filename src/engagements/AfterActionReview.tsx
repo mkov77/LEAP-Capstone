@@ -76,7 +76,7 @@ const AfterActionReview: React.FC<AfterActionReviewProps> = ({
         {/* Damage Section */}
         <Card.Section withBorder inheritPadding py="xs">
           <Text fw={700} size="lg">
-            Damage
+            FINAL DAMAGE 
           </Text>
           <Container className="progress-container" style={{ marginBottom: '10px' }}>
             {/* Friendly Damage Bar */}
@@ -116,7 +116,7 @@ const AfterActionReview: React.FC<AfterActionReviewProps> = ({
         {/* Phase Scores Section */}
         <Card.Section withBorder inheritPadding py="xs">
           <Text fw={700} size="lg">
-            Phase Scores
+            PHASE BREAKDOWN
           </Text>
           {[
             { name: 'Detection', friendly: detectionScoreFriendly, enemy: detectionScoreEnemy },
@@ -180,7 +180,7 @@ const AfterActionReview: React.FC<AfterActionReviewProps> = ({
         {/* Final Detailed Results Section */}
         <Card.Section withBorder inheritPadding py="xs">
           <Text fw={700} size="lg">
-            Detailed Results
+            DETAILED RESULTS
           </Text>
           <Grid gutter="md" mt="xs">
             {/* Friendly Detailed Results */}
