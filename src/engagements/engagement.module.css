@@ -27,3 +27,16 @@
   background-color: transparent;
   z-index: 0;
 }
+
+.progressLabel {
+  position: relative;
+  z-index: 1;
+  display: block; /* Ensure the label takes full width */
+  padding: 10px; /* Adjust padding as needed */
+  margin-bottom: var(--mantine-spacing-xs);
+  line-height: 1;
+  font-weight: 700;
+  font-size: var(--mantine-font-size-xs);
+  letter-spacing: -0.25px;
+  text-transform: uppercase;
+}

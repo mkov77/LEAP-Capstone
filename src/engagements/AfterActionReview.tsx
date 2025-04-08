@@ -9,30 +9,34 @@ import {
   Tooltip,
 } from '@mantine/core';
 import { EngagementData } from './calculateEngagement';
+import DamageProgress from './DamageProgress';
 
 interface AfterActionReviewProps {
   friendlyData: EngagementData | null;
   enemyData: EngagementData | null;
+  round: number; // Round number to display in the header
 }
 
 const AfterActionReview: React.FC<AfterActionReviewProps> = ({
   friendlyData,
   enemyData,
+  round,
 }) => {
   const friendlyUnitName = 'Friendly ID';
   const enemyUnitName = 'Enemy ID';
 
-  // Current Health and Damage
-  const friendlyHealth = friendlyData?.Fn ?? 1;
-  const enemyHealth = enemyData?.Fn ?? 1;
-  const friendlyDamage = friendlyData?.D ?? 1;
-  const enemyDamage = enemyData?.D ?? 1;
+  // Get initial and final health values from engagement data.
+  // Fallback to 1 if missing (to avoid division issues)
+  const friendlyInitialHealth = friendlyData?.Fi ?? 1;
+  const enemyInitialHealth = enemyData?.Fi ?? 1;
+  const friendlyFinalHealth = friendlyData?.Fn ?? 1;
+  const enemyFinalHealth = enemyData?.Fn ?? 1;
 
-  // Round health values consistently
-  const friendlyHealthRounded = Math.round(friendlyHealth);
-  const enemyHealthRounded = Math.round(enemyHealth);
+  // Calculate damage taken (rounded)
+  const friendlyDamageTaken = Math.round(friendlyInitialHealth - friendlyFinalHealth);
+  const enemyDamageTaken = Math.round(enemyInitialHealth - enemyFinalHealth);
 
-  // Compute Phase Scores
+  // Compute Phase Scores (as percentages)
   const detectionScoreFriendly = (friendlyData?.P ?? 0) * 100;
   const engagementScoreFriendly = (friendlyData?.Ph ?? 0) * 100;
   const accuracyScoreFriendly = (friendlyData?.d_r ?? 0) * 100;
@@ -41,7 +45,7 @@ const AfterActionReview: React.FC<AfterActionReviewProps> = ({
   const engagementScoreEnemy = (enemyData?.Ph ?? 0) * 100;
   const accuracyScoreEnemy = (enemyData?.d_r ?? 0) * 100;
 
-  // Determine which unit achieved first strike based on detection probability (P)
+  // Determine first strike text based on detection probability (P)
   let firstStrikeText = '';
   if (friendlyData && enemyData) {
     if (friendlyData.P > enemyData.P) {
@@ -55,29 +59,87 @@ const AfterActionReview: React.FC<AfterActionReviewProps> = ({
 
   return (
     <Group justify="center" mt="xl">
-      <Card shadow="sm" padding="md" radius="md" withBorder style={{ width: '650px', textAlign: 'center' }}>
+      <Card
+        shadow="sm"
+        padding="md"
+        radius="md"
+        withBorder
+        style={{ width: '650px', textAlign: 'center' }}
+      >
+        {/* Header */}
         <Card.Section withBorder inheritPadding py="xs">
-          <Text fw={700} size="lg">After Action Review</Text>
+          <Text fw={700} size="lg">
+            Round {round} Results
+          </Text>
         </Card.Section>
 
-        {/* Phase Scores */}
+        {/* Damage Section */}
         <Card.Section withBorder inheritPadding py="xs">
-          <Text fw={700} size="lg">Phase Scores</Text>
+          <Text fw={700} size="lg">
+            Damage
+          </Text>
+          <Container className="progress-container" style={{ marginBottom: '10px' }}>
+            {/* Friendly Damage Bar */}
+            <Group justify="space-between" style={{ marginBottom: '4px' }}>
+              <Text fw={600} size="sm">
+                {friendlyUnitName}
+              </Text>
+              <Text fw={600} size="sm">
+                {`Damage: ${friendlyDamageTaken} | HP: ${Math.round(friendlyFinalHealth)}`}
+              </Text>
+            </Group>
+            <DamageProgress
+              originalHealth={friendlyInitialHealth}
+              remainingHealth={friendlyFinalHealth}
+              remainingColor="#3d85c6"
+              damageColor="#2b5d8b"
+            />
+
+            {/* Enemy Damage Bar */}
+            <Group justify="space-between" style={{ marginBottom: '4px', marginTop: '8px' }}>
+              <Text fw={600} size="sm">
+                {enemyUnitName}
+              </Text>
+              <Text fw={600} size="sm">
+                {`Damage: ${enemyDamageTaken} | HP: ${Math.round(enemyFinalHealth)}`}
+              </Text>
+            </Group>
+            <DamageProgress
+              originalHealth={enemyInitialHealth}
+              remainingHealth={enemyFinalHealth}
+              remainingColor="#c1432d"
+              damageColor="#872f1f"
+            />
+          </Container>
+        </Card.Section>
+
+        {/* Phase Scores Section */}
+        <Card.Section withBorder inheritPadding py="xs">
+          <Text fw={700} size="lg">
+            Phase Scores
+          </Text>
           {[
             { name: 'Detection', friendly: detectionScoreFriendly, enemy: detectionScoreEnemy },
             { name: 'Engagement', friendly: engagementScoreFriendly, enemy: engagementScoreEnemy },
-            { name: 'Accuracy', friendly: accuracyScoreFriendly, enemy: accuracyScoreEnemy }
+            { name: 'Accuracy', friendly: accuracyScoreFriendly, enemy: accuracyScoreEnemy },
           ].map(({ name, friendly, enemy }) => (
-            <Container key={name} mt="md" className="progress-container">
-              <Text mt="xs" fw={700} tt="uppercase">{name}</Text>
+            <Container
+              key={name}
+              mt="md"
+              className="progress-container"
+              style={{ marginBottom: '8px' }}
+            >
+              <Text fw={600} tt="uppercase" style={{ marginBottom: '4px' }}>
+                {name}
+              </Text>
               {name === 'Detection' && (
-                <Text mt="xs" fw={500}>
+                <Text fw={500} style={{ textTransform: 'none', marginBottom: '4px' }}>
                   {firstStrikeText}
                 </Text>
               )}
-              {/* Friendly Progress Bar with overlay text */}
-              <Container style={{ position: 'relative', marginBottom: '8px' }}>
-                <Progress size={20} radius="sm" value={friendly} color="#3d85c6" />
+              {/* Friendly Phase Score Progress Bar */}
+              <Container style={{ position: 'relative', marginBottom: '6px' }}>
+                <Progress size={30} radius="sm" value={friendly} color="#3d85c6" />
                 <Text
                   size="xs"
                   style={{
@@ -86,16 +148,16 @@ const AfterActionReview: React.FC<AfterActionReviewProps> = ({
                     left: '50%',
                     transform: 'translate(-50%, -50%)',
                     color: 'white',
-                    fontWeight: 400,
+                    fontWeight: 500,
                     zIndex: 1,
                   }}
                 >
                   {friendly.toFixed(0)}%
                 </Text>
               </Container>
-              {/* Enemy Progress Bar with overlay text */}
-              <Container style={{ position: 'relative', marginBottom: '8px' }}>
-                <Progress size={20} radius="sm" value={enemy} color="#c1432d" />
+              {/* Enemy Phase Score Progress Bar */}
+              <Container style={{ position: 'relative', marginBottom: '6px' }}>
+                <Progress size={30} radius="sm" value={enemy} color="#c1432d" />
                 <Text
                   size="xs"
                   style={{
@@ -104,7 +166,7 @@ const AfterActionReview: React.FC<AfterActionReviewProps> = ({
                     left: '50%',
                     transform: 'translate(-50%, -50%)',
                     color: 'white',
-                    fontWeight: 400,
+                    fontWeight: 500,
                     zIndex: 1,
                   }}
                 >
@@ -115,77 +177,49 @@ const AfterActionReview: React.FC<AfterActionReviewProps> = ({
           ))}
         </Card.Section>
 
-        {/* Damage Section */}
+        {/* Final Detailed Results Section */}
         <Card.Section withBorder inheritPadding py="xs">
-          <Text fw={700} size="lg">Damage</Text>
-          <Container className="progress-container">
-            <Group justify="space-between">
-              <Text fw={500} size="sm">{friendlyUnitName}</Text>
-              <Text fw={500} size="sm">{`-${friendlyDamage.toFixed(0)}`}</Text>
-            </Group>
-
-            <Tooltip label={`HP: ${friendlyHealthRounded}`} position="top">
-              <Progress size={20} radius="sm" value={friendlyHealthRounded} color="#3d85c6" style={{ marginBottom: '8px' }} />
-            </Tooltip>
-
-            <Group justify="space-between">
-              <Text fw={500} size="sm">{enemyUnitName}</Text>
-              <Text fw={500} size="sm">{`-${enemyDamage.toFixed(0)}`}</Text>
-            </Group>
-
-            <Tooltip label={`HP: ${enemyHealthRounded}`} position="top">
-              <Progress size={20} radius="sm" value={enemyHealthRounded} color="#c1432d" style={{ marginBottom: '8px' }} />
-            </Tooltip>
-          </Container>
+          <Text fw={700} size="lg">
+            Detailed Results
+          </Text>
+          <Grid gutter="md" mt="xs">
+            {/* Friendly Detailed Results */}
+            <Grid.Col span={6}>
+              <Text fw={600} size="sm">Friendly Unit Results</Text>
+              <Text size="sm">Field of View (w): {friendlyData?.w.toFixed(2)}</Text>
+              <Text size="sm">Area Covered (A): {friendlyData?.A.toFixed(2)}</Text>
+              <Text size="sm">Time Detecting (t): {friendlyData?.t.toFixed(2)}</Text>
+              <Text size="sm">Detection (P): {friendlyData?.P.toFixed(4)}</Text>
+              <Text size="sm">Radius (r): {friendlyData?.r.toFixed(2)}</Text>
+              <Text size="sm">Accuracy (σ): {friendlyData?.sigma.toFixed(2)}</Text>
+              <Text size="sm">Hit Prob. (Ph): {friendlyData?.Ph.toFixed(4)}</Text>
+              <Text size="sm">Range (b): {friendlyData?.b.toFixed(2)}</Text>
+              <Text size="sm">d(r): {friendlyData?.d_r.toFixed(4)}</Text>
+              <Text size="sm">Max Damage (d_mi): {friendlyData?.d_mi.toFixed(2)}</Text>
+              <Text size="sm">Damage Dealt (D): {friendlyData?.D.toFixed(2)}</Text>
+              <Text size="sm">Initial HP (Fi): {friendlyData?.Fi.toFixed(2)}</Text>
+              <Text size="sm">Final HP (Fn): {friendlyData?.Fn.toFixed(2)}</Text>
+            </Grid.Col>
+            {/* Enemy Detailed Results */}
+            <Grid.Col span={6}>
+              <Text fw={600} size="sm">Enemy Unit Results</Text>
+              <Text size="sm">Field of View (w): {enemyData?.w.toFixed(2)}</Text>
+              <Text size="sm">Area Covered (A): {enemyData?.A.toFixed(2)}</Text>
+              <Text size="sm">Time Detecting (t): {enemyData?.t.toFixed(2)}</Text>
+              <Text size="sm">Detection (P): {enemyData?.P.toFixed(4)}</Text>
+              <Text size="sm">Radius (r): {enemyData?.r.toFixed(2)}</Text>
+              <Text size="sm">Accuracy (σ): {enemyData?.sigma.toFixed(2)}</Text>
+              <Text size="sm">Hit Prob. (Ph): {enemyData?.Ph.toFixed(4)}</Text>
+              <Text size="sm">Range (b): {enemyData?.b.toFixed(2)}</Text>
+              <Text size="sm">d(r): {enemyData?.d_r.toFixed(4)}</Text>
+              <Text size="sm">Max Damage (d_mi): {enemyData?.d_mi.toFixed(2)}</Text>
+              <Text size="sm">Damage Dealt (D): {enemyData?.D.toFixed(2)}</Text>
+              <Text size="sm">Initial HP (Fi): {enemyData?.Fi.toFixed(2)}</Text>
+              <Text size="sm">Final HP (Fn): {enemyData?.Fn.toFixed(2)}</Text>
+            </Grid.Col>
+          </Grid>
         </Card.Section>
       </Card>
-
-      {/* Engagement Data Grid (Kept at Bottom) */}
-      <Grid gutter="xl" mt="md">
-        {/* FRIENDLY DATA */}
-        {friendlyData && (
-          <Grid.Col span={6}>
-            <Text size="lg" fw={700} mb="md">
-              Friendly Unit Results
-            </Text>
-            <Text>Field of View (w): {friendlyData.w.toFixed(2)}</Text>
-            <Text>Area Covered (A): {friendlyData.A.toFixed(2)}</Text>
-            <Text>Time Spent Detecting (t): {friendlyData.t.toFixed(2)}</Text>
-            <Text>Probability of Detection (P): {friendlyData.P.toFixed(4)}</Text>
-            <Text>Radius (r): {friendlyData.r.toFixed(2)}</Text>
-            <Text>Accuracy Factor (σ): {friendlyData.sigma.toFixed(2)}</Text>
-            <Text>Probability of Hit (Ph): {friendlyData.Ph.toFixed(4)}</Text>
-            <Text>Range (b): {friendlyData.b.toFixed(2)}</Text>
-            <Text>d(r): {friendlyData.d_r.toFixed(4)}</Text>
-            <Text>d_mi: {friendlyData.d_mi.toFixed(2)}</Text>
-            <Text>Damage Dealt (D): {friendlyData.D.toFixed(2)}</Text>
-            <Text>Friendly Initial HP (Fi): {friendlyData.Fi.toFixed(2)}</Text>
-            <Text>Friendly Final HP (Fn): {friendlyData.Fn.toFixed(2)}</Text>
-          </Grid.Col>
-        )}
-
-        {/* ENEMY DATA */}
-        {enemyData && (
-          <Grid.Col span={6}>
-            <Text size="lg" fw={700} mb="md">
-              Enemy Unit Results
-            </Text>
-            <Text>Field of View (w): {enemyData.w.toFixed(2)}</Text>
-            <Text>Area Covered (A): {enemyData.A.toFixed(2)}</Text>
-            <Text>Time Spent Detecting (t): {enemyData.t.toFixed(2)}</Text>
-            <Text>Probability of Detection (P): {enemyData.P.toFixed(4)}</Text>
-            <Text>Radius (r): {enemyData.r.toFixed(2)}</Text>
-            <Text>Accuracy Factor (σ): {enemyData.sigma.toFixed(2)}</Text>
-            <Text>Probability of Hit (Ph): {enemyData.Ph.toFixed(4)}</Text>
-            <Text>Range (b): {enemyData.b.toFixed(2)}</Text>
-            <Text>d(r): {enemyData.d_r.toFixed(4)}</Text>
-            <Text>d_mi: {enemyData.d_mi.toFixed(2)}</Text>
-            <Text>Damage Dealt (D): {enemyData.D.toFixed(2)}</Text>
-            <Text>Enemy Initial HP (Fi): {enemyData.Fi.toFixed(2)}</Text>
-            <Text>Enemy Final HP (Fn): {enemyData.Fn.toFixed(2)}</Text>
-          </Grid.Col>
-        )}
-      </Grid>
     </Group>
   );
 };
