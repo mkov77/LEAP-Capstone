@@ -15,15 +15,20 @@ interface AfterActionReviewProps {
   friendlyData: EngagementData | null;
   enemyData: EngagementData | null;
   round: number; // Round number to display in the header
+  friendlyName: string;
+  enemyName: string;
 }
 
 const AfterActionReview: React.FC<AfterActionReviewProps> = ({
   friendlyData,
   enemyData,
   round,
+  friendlyName,
+  enemyName,
 }) => {
-  const friendlyUnitName = 'Friendly ID';
-  const enemyUnitName = 'Enemy ID';
+  const friendlyUnitName = friendlyName?? 'Friendly Unit';
+  const enemyUnitName = enemyName?? 'Enemy Unit';
+
 
   // Get initial and final health values from engagement data.
   // Fallback to 1 if missing (to avoid division issues)
@@ -78,7 +83,7 @@ const AfterActionReview: React.FC<AfterActionReviewProps> = ({
           <Text fw={700} size="lg">
             FINAL DAMAGE 
           </Text>
-          <Container className="progress-container" style={{ marginBottom: '10px' }}>
+          <Container className="progress-container" style={{ marginBottom: '20px' }}>
             {/* Friendly Damage Bar */}
             <Group justify="space-between" style={{ marginBottom: '4px' }}>
               <Text fw={600} size="sm">
@@ -96,7 +101,7 @@ const AfterActionReview: React.FC<AfterActionReviewProps> = ({
             />
 
             {/* Enemy Damage Bar */}
-            <Group justify="space-between" style={{ marginBottom: '4px', marginTop: '8px' }}>
+            <Group justify="space-between" style={{ marginBottom: '4px', marginTop: '15px' }}>
               <Text fw={600} size="sm">
                 {enemyUnitName}
               </Text>
@@ -141,7 +146,7 @@ const AfterActionReview: React.FC<AfterActionReviewProps> = ({
               <Container style={{ position: 'relative', marginBottom: '6px' }}>
                 <Progress size={30} radius="sm" value={friendly} color="#3d85c6" />
                 <Text
-                  size="xs"
+                  size="sm"
                   style={{
                     position: 'absolute',
                     top: '50%',
@@ -159,7 +164,7 @@ const AfterActionReview: React.FC<AfterActionReviewProps> = ({
               <Container style={{ position: 'relative', marginBottom: '6px' }}>
                 <Progress size={30} radius="sm" value={enemy} color="#c1432d" />
                 <Text
-                  size="xs"
+                  size="sm"
                   style={{
                     position: 'absolute',
                     top: '50%',
