@@ -24,7 +24,7 @@ const DamageProgress: React.FC<DamageProgressProps> = ({
       transitionProps={{ transition: 'fade-up', duration: 400 }}
       label={`Damage: ${Math.round(damageTaken)}, Remaining: ${Math.round(remainingHealth)}`}
     >
-      <Progress.Root size={30} classNames={{ label: classes.progressLabel }} m={10}>
+      <Progress.Root size={30} classNames={{ label: classes.progressLabel }} m={0}>
         {remainingHealth > 0 ? (
           <>
             <Progress.Section value={remainingHealth} color={remainingColor} key="remaining" />

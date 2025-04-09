@@ -163,11 +163,11 @@ function Engagement() {
    */
   const doFinalize = () => {
     if (!selectedUnit || !enemyUnit) return;
-
+  
     const friendlyUnitObj = units.find((u) => u.unit_id === selectedUnit);
     const enemyUnitObj = enemyUnits.find((u) => u.unit_id === enemyUnit.unit_id);
     if (!friendlyUnitObj || !enemyUnitObj) return;
-
+  
     // Restore friendly modifiers
     const friendlyMods: UnitModifiers = {
       roleType: 'Combat',
@@ -176,7 +176,6 @@ function Engagement() {
       forceMobility: 'Mobile (foot)',
       forceReadiness: 'High',
       forceSkill: 'Basic',
-
       didISR: isrConducted,
       commsGood: !commsDegraded,
       hasCAS,
@@ -184,7 +183,7 @@ function Engagement() {
       defendingCritical,
       targetInOuterSOI,
     };
-
+  
     // Restore enemy modifiers
     const enemyMods: UnitModifiers = {
       roleType: 'Combat',
@@ -193,7 +192,6 @@ function Engagement() {
       forceMobility: 'Mobile (foot)',
       forceReadiness: 'High',
       forceSkill: 'Basic',
-
       didISR: false,
       commsGood: true,
       hasCAS: false,
@@ -201,7 +199,7 @@ function Engagement() {
       defendingCritical: false,
       targetInOuterSOI: false,
     };
-
+  
     // Run the engagement calculation
     const results: CalculationResult = runEngagementCalculation({
       friendly: friendlyUnitObj,
@@ -210,18 +208,35 @@ function Engagement() {
       enemyMods,
       applyFirstStrike: roundNumber === 1, // Only apply first strike on round 1
     });
-
+  
     setFriendlyData(results.friendly);
     setEnemyData(results.enemy);
-
-    // Calculate the new health for both sides and round to an integer value
-    const newFriendlyHealth = Math.round(
-      Math.max(0, friendlyUnitObj.unit_health - results.enemy.D)
-    );
-    const newEnemyHealth = Math.round(
-      Math.max(0, enemyUnitObj.unit_health - results.friendly.D)
-    );
-
+  
+    // Use the health state if available; otherwise, fall back to the unit object's health.
+    let Fi = friendlyHP !== null ? friendlyHP : friendlyUnitObj.unit_health;
+    let Ei = enemyHP !== null ? enemyHP : enemyUnitObj.unit_health;
+  
+    // Apply first-strike logic if applicable (for round 1)
+    if (roundNumber === 1) {
+      const firstStrikeFactor = 0.3; // Adjust factor as needed
+      if (results.friendly.P > results.enemy.P) {
+        const firstStrikeDamage = firstStrikeFactor * (results.friendly.d_mi * results.friendly.Ph * results.friendly.d_r);
+        Ei = Math.max(0, Ei - firstStrikeDamage);
+      } else if (results.enemy.P > results.friendly.P) {
+        const firstStrikeDamage = firstStrikeFactor * (results.enemy.d_mi * results.enemy.Ph * results.enemy.d_r);
+        Fi = Math.max(0, Fi - firstStrikeDamage);
+      }
+    }
+  
+    // Calculate the new health for both sides.
+    // Using Math.max ensures it won't be negative.
+    let newFriendlyHealth = Math.round(Math.max(0, Fi - results.enemy.D));
+    let newEnemyHealth = Math.round(Math.max(0, Ei - results.friendly.D));
+  
+    // If new health is below 1, force it to 0.
+    if (newFriendlyHealth < 1) newFriendlyHealth = 0;
+    if (newEnemyHealth < 1) newEnemyHealth = 0;
+  
     // Update friendly unit health on the backend
     axios
       .put(`${process.env.REACT_APP_BACKEND_URL}/api/units/health`, {
@@ -234,7 +249,7 @@ function Engagement() {
       .catch((error) => {
         console.error("Error updating friendly health:", error);
       });
-
+  
     // Update enemy unit health on the backend
     axios
       .put(`${process.env.REACT_APP_BACKEND_URL}/api/units/health`, {
@@ -247,7 +262,7 @@ function Engagement() {
       .catch((error) => {
         console.error("Error updating enemy health:", error);
       });
-
+  
     // Update the local units state so that the unit objects reflect the new health values
     setUnits((prevUnits) =>
       prevUnits.map((unit) =>
@@ -256,7 +271,7 @@ function Engagement() {
           : unit
       )
     );
-
+  
     setEnemyUnits((prevEnemyUnits) =>
       prevEnemyUnits.map((unit) =>
         unit.unit_id === enemyUnitObj.unit_id
@@ -264,10 +279,14 @@ function Engagement() {
           : unit
       )
     );
-
-    // Also update the selected enemy unit so that UnitSelection displays the updated health
+  
+    // Update selected enemy unit so that UnitSelection displays the updated health
     setEnemyUnit({ ...enemyUnitObj, unit_health: newEnemyHealth });
-  };
+  
+    // Also update the local health state values
+    setFriendlyHP(newFriendlyHealth);
+    setEnemyHP(newEnemyHealth);
+  };  
 
   // If both sides remain alive, user can continue
   const canContinue = Boolean(
@@ -536,7 +555,9 @@ function Engagement() {
               friendlyData={friendlyData}
               enemyData={enemyData}
               round={roundNumber}
-            />
+              friendlyName = {friendlyUnitObject ? friendlyUnitObject.unit_name : "Friendly Unit"} 
+              enemyName={enemyUnit ? enemyUnit.unit_name : "Enemy Unit"} // fallback value
+              />
 
 
             {/* Only show "Continue" if both sides > 0. Otherwise end. */}
