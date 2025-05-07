@@ -292,8 +292,10 @@ export function runEngagementCalculation(params: {
   const eFinal = applyTableModifiers(foeBase, enemyMods);
 
   // 3) Rename v -> sigma for convenience
-  const sigmaF = fFinal.v;
-  const sigmaE = eFinal.v;
+  const sigmaF = fFinal.rho;
+
+  const sigmaE = eFinal.rho;
+  
   // Ensure sigma is not zero to avoid division by zero
   const safeSigmaF = sigmaF !== 0 ? sigmaF : 0.01;
   const safeSigmaE = sigmaE !== 0 ? sigmaE : 0.01;
